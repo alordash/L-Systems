@@ -5,24 +5,37 @@ continueRenderingCheckbox.onchange = function () {
     continueRendering = continueRenderingCheckbox.checked;
 }
 
-var canvas: HTMLCanvasElement;
-width = 900;
-height = 900;
+function randomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-function setup() {
+let width = 900;
+let height = 900;
+
+var sketch = (p: p5) => {
+    p.setup = () => {
+        canvas = p.createCanvas(width, height);
+        canvas.style('border', '#000000');
+        canvas.style('borderStyle', 'solid');
+    };
+
+    p.draw = () => {
+        if (continueRendering) {
+            p.background(225, 225, 255);
+
+            p.fill(255);
+            p.stroke(0);
+            p.strokeWeight(2);
+            p.line(randomInt(0, width), randomInt(0, height), randomInt(0, width), randomInt(0, height));
+        }
+    };
+};
+
+let canvas: p5.Renderer;
+
+function main() {
     console.log(`Creating canvas ${width} x ${height}`);
-    createCanvas(width, height);
-    canvas = <HTMLCanvasElement>document.getElementById("defaultCanvas0");
-    canvas.style.border = "#000000";
-    canvas.style.borderStyle = "solid";
+    new p5(sketch);
 }
 
-function draw() {
-    if (continueRendering) {
-        background(225, 225, 255);
-
-        fill(255);
-        stroke(0);
-        strokeWeight(2);
-    }
-}
+main();
