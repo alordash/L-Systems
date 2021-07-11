@@ -1,3 +1,4 @@
+/// <reference path="../../Miscellaneous/Math.ts" />
 /// <reference path="../../Drawing/Geometry.ts" />
 
 class BinaryTree extends L_System {
@@ -6,15 +7,21 @@ class BinaryTree extends L_System {
 
     step: number;
     angle: number;
+    random: boolean;
     locations: Transform[];
 
-    constructor(step: number, angle: number) {
+    constructor(step: number, angle: number, random: boolean) {
         super(BinaryTree.dictionary, BinaryTree.axiom);
         this.step = step;
         this.angle = angle;
+        this.random = random;
         this.locations = new Array<Transform>();
         const simpleDraw = (cursor: Cursor) => {
-            cursor.DrawLine(this.step);
+            let step = this.step;
+            if(this.random) {
+                step = MathHelper.randomize(step);
+            }
+            cursor.DrawLine(step);
         }
         let actions: ActType = {
             '0': simpleDraw,
@@ -22,11 +29,19 @@ class BinaryTree extends L_System {
             '2': simpleDraw,
             '[': (cursor: Cursor) => {
                 this.locations.push(cursor.loc.Copy());
-                cursor.loc.dir += this.angle;
+                let angle = this.angle;
+                if(this.random) {
+                    angle = MathHelper.randomize(angle);
+                }
+                cursor.loc.dir += angle;
             },
             ']': (cursor: Cursor) => {
                 cursor.loc.SetTo(this.locations.pop());
-                cursor.loc.dir -= this.angle;
+                let angle = this.angle;
+                if(this.random) {
+                    angle = MathHelper.randomize(angle);
+                }
+                cursor.loc.dir -= angle;
             }
         }
         this.actions = actions;

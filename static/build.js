@@ -4,6 +4,9 @@ var MathHelper = (function () {
     MathHelper.randInt = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
+    MathHelper.randomize = function (n) {
+        return n * this.randInt(0.9, 1.25);
+    };
     return MathHelper;
 }());
 var Point = (function () {
@@ -96,13 +99,18 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var BinaryTree = (function (_super) {
     __extends(BinaryTree, _super);
-    function BinaryTree(step, angle) {
+    function BinaryTree(step, angle, random) {
         var _this = _super.call(this, BinaryTree.dictionary, BinaryTree.axiom) || this;
         _this.step = step;
         _this.angle = angle;
+        _this.random = random;
         _this.locations = new Array();
         var simpleDraw = function (cursor) {
-            cursor.DrawLine(_this.step);
+            var step = _this.step;
+            if (_this.random) {
+                step = MathHelper.randomize(step);
+            }
+            cursor.DrawLine(step);
         };
         var actions = {
             '0': simpleDraw,
@@ -110,11 +118,19 @@ var BinaryTree = (function (_super) {
             '2': simpleDraw,
             '[': function (cursor) {
                 _this.locations.push(cursor.loc.Copy());
-                cursor.loc.dir += _this.angle;
+                var angle = _this.angle;
+                if (_this.random) {
+                    angle = MathHelper.randomize(angle);
+                }
+                cursor.loc.dir += angle;
             },
             ']': function (cursor) {
                 cursor.loc.SetTo(_this.locations.pop());
-                cursor.loc.dir -= _this.angle;
+                var angle = _this.angle;
+                if (_this.random) {
+                    angle = MathHelper.randomize(angle);
+                }
+                cursor.loc.dir -= angle;
             }
         };
         _this.actions = actions;
@@ -124,7 +140,7 @@ var BinaryTree = (function (_super) {
     BinaryTree.axiom = '0';
     return BinaryTree;
 }(L_System));
-var continueRendering = true;
+var continueRendering = false;
 var continueRenderingCheckbox = document.getElementById("ContinueRendering");
 continueRenderingCheckbox.checked = continueRendering;
 continueRenderingCheckbox.onchange = function () {
@@ -137,12 +153,26 @@ var pWidth = 10;
 var SpawnTransform = new Transform(SpawnPoint, 90);
 var stepRange = document.getElementById("StepRange");
 var angleRange = document.getElementById("AngleRange");
-var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value);
-stepRange.onmousemove = stepRange.onchange = function () {
+var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, true);
+stepRange.onchange = function () {
     binaryTree.step = +stepRange.value;
+    _Draw();
 };
-angleRange.onmousemove = angleRange.onchange = function () {
+stepRange.onmousemove = function (e) {
+    if (e.buttons) {
+        binaryTree.step = +stepRange.value;
+        _Draw();
+    }
+};
+angleRange.onchange = function () {
     binaryTree.angle = +angleRange.value;
+    _Draw();
+};
+angleRange.onmousemove = function (e) {
+    if (e.buttons) {
+        binaryTree.angle = +angleRange.value;
+        _Draw();
+    }
 };
 var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
@@ -153,14 +183,21 @@ button.onclick = function () {
     SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
     generation++;
     button.innerHTML = "Button " + generation;
+    _Draw();
 };
+var MainCursor;
+function _Draw() {
+    canvas.background(225, 225, 255);
+    canvas.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
+    binaryTree.View(MainCursor);
+    MainCursor.loc.SetTo(SpawnTransform);
+}
 var p5Sketch = function (_p) {
-    var MainCursor = new Cursor(_p, SpawnTransform.Copy());
     _p.setup = function () {
-        canvas = _p.createCanvas(width, height);
-        canvas.style('border', '#000000');
-        canvas.style('borderStyle', 'solid');
-        canvas.style('border-width', '3px');
+        canvasElement = _p.createCanvas(width, height);
+        canvasElement.style('border', '#000000');
+        canvasElement.style('borderStyle', 'solid');
+        canvasElement.style('border-width', '3px');
         _p.fill(255);
         _p.stroke(0);
         _p.strokeWeight(2);
@@ -174,11 +211,13 @@ var p5Sketch = function (_p) {
         }
     };
 };
+var canvasElement;
 var canvas;
 function main() {
     console.log('MathHelper.randInt(100,200) :>> ', MathHelper.randInt(100, 200));
     console.log("Creating canvas " + width + " x " + height);
-    new p5(p5Sketch);
+    canvas = new p5(p5Sketch);
+    MainCursor = new Cursor(canvas, SpawnTransform.Copy());
 }
 main();
 //# sourceMappingURL=build.js.map
