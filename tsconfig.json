@@ -1,13 +1,14 @@
 {
-    "compilerOptions": {
-      "module": "none",
-      "noImplicitAny": true,
-      "outFile": "./static/build.js",
-      "preserveConstEnums": true,
-      "removeComments": true,
-      "rootDir": "./sketch",
-      "sourceMap": true,
-      "target": "es5",
-      "moduleResolution": "node"
-    }
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "None",
+    "rootDir": "./sketch/",
+    "preserveConstEnums": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "outFile": "./static/build.js",
+    "noImplicitAny": true,
+    "target": "es5",
+    "moduleResolution": "node"
   }
+}

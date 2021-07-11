@@ -1,3 +1,9 @@
+/// <reference path="Miscellaneous/Math.ts" />
+/// <reference path="Drawing/Geometry.ts" />
+/// <reference path="Drawing/Cursor.ts" />
+/// <reference path="L_Systems/L_System.ts" />
+/// <reference path="L_Systems/BinaryTree/BinaryTree.ts" />
+
 var continueRendering = true;
 var continueRenderingCheckbox = <HTMLInputElement>document.getElementById("ContinueRendering");
 continueRenderingCheckbox.checked = continueRendering;
@@ -5,28 +11,45 @@ continueRenderingCheckbox.onchange = function () {
     continueRendering = continueRenderingCheckbox.checked;
 }
 
-function randomInt(min: number, max: number): number {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+let width = 800;
+let height = 800;
+
+const SpawnPoint = new Point(width / 2, height - 100);
+const pWidth = 10;
+
+const SpawnTransform = new Transform(SpawnPoint, 90);
+
+let binaryTree = new BinaryTree(5, 45);
+
+var SystemStateDisplay = document.getElementById("SystemStateDisplay");
+SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`
+document.getElementById("Button42").onclick = () => {
+    binaryTree.Evolve();
+    SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
 }
 
-let width = 900;
-let height = 900;
+var p5Sketch = (_p: p5) => {
+    let MainCursor = new Cursor(_p, SpawnTransform.Copy());
 
-var sketch = (p: p5) => {
-    p.setup = () => {
-        canvas = p.createCanvas(width, height);
+    _p.setup = () => {
+        canvas = _p.createCanvas(width, height);
         canvas.style('border', '#000000');
         canvas.style('borderStyle', 'solid');
     };
 
-    p.draw = () => {
+    _p.draw = () => {
         if (continueRendering) {
-            p.background(225, 225, 255);
+            _p.background(225, 225, 255);
 
-            p.fill(255);
-            p.stroke(0);
-            p.strokeWeight(2);
-            p.line(randomInt(0, width), randomInt(0, height), randomInt(0, width), randomInt(0, height));
+            _p.fill(255);
+            _p.stroke(0);
+            _p.strokeWeight(2);
+            _p.line(MathHelper.randInt(0, width), MathHelper.randInt(0, height), MathHelper.randInt(0, width), MathHelper.randInt(0, height));
+
+            _p.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
+
+            binaryTree.View(MainCursor);
+            MainCursor.loc.SetTo(SpawnTransform);
         }
     };
 };
@@ -34,8 +57,9 @@ var sketch = (p: p5) => {
 let canvas: p5.Renderer;
 
 function main() {
+    console.log('MathHelper.randInt(100,200) :>> ', MathHelper.randInt(100, 200));
     console.log(`Creating canvas ${width} x ${height}`);
-    new p5(sketch);
+    new p5(p5Sketch);
 }
 
 main();
