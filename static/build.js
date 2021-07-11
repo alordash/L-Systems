@@ -5,7 +5,7 @@ var MathHelper = (function () {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
     MathHelper.randomize = function (n) {
-        return n * this.randInt(0.9, 1.25);
+        return n * this.randInt(0.7, 1.3);
     };
     return MathHelper;
 }());
@@ -52,25 +52,36 @@ var Cursor = (function () {
         this.p5.line(x, y, xNew, yNew);
         this.loc.pos = new Point(xNew, yNew);
     };
+    Cursor.prototype.Turn = function (angle) {
+        this.loc.dir += angle;
+    };
     return Cursor;
 }());
 var L_System = (function () {
-    function L_System(dictionary, axiom) {
-        this.dictionary = dictionary;
+    function L_System(axiom, reset) {
+        if (reset === void 0) { reset = function () { }; }
         this.state = this.axiom = axiom;
+        this.reset = reset;
     }
     L_System.prototype.Evolve = function () {
         var newState = '';
         for (var _i = 0, _a = this.state; _i < _a.length; _i++) {
             var c = _a[_i];
             if (this.dictionary[c] != undefined) {
-                newState += this.dictionary[c];
+                newState += this.dictionary[c]();
             }
             else {
                 newState += c;
             }
         }
         this.state = newState;
+    };
+    L_System.prototype.EvolveTo = function (n) {
+        this.reset();
+        this.state = this.axiom;
+        for (var i = 1; i < n; i++) {
+            this.Evolve();
+        }
     };
     L_System.prototype.View = function (cursor) {
         for (var _i = 0, _a = this.state; _i < _a.length; _i++) {
@@ -81,6 +92,13 @@ var L_System = (function () {
         }
     };
     return L_System;
+}());
+var State = (function () {
+    function State(t, thick) {
+        this.t = t;
+        this.thickness = thick;
+    }
+    return State;
 }());
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -99,45 +117,90 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var BinaryTree = (function (_super) {
     __extends(BinaryTree, _super);
-    function BinaryTree(step, angle, random) {
-        var _this = _super.call(this, BinaryTree.dictionary, BinaryTree.axiom) || this;
-        _this.step = step;
-        _this.angle = angle;
-        _this.random = random;
-        _this.locations = new Array();
-        var simpleDraw = function (cursor) {
-            var step = _this.step;
-            if (_this.random) {
-                step = MathHelper.randomize(step);
+    function BinaryTree(step, angle, thickness, random, splitChance) {
+        if (thickness === void 0) { thickness = 16; }
+        if (random === void 0) { random = false; }
+        if (splitChance === void 0) { splitChance = 50; }
+        var _this = _super.call(this, BinaryTree.axiom, function () { _this.thickness = thickness; }) || this;
+        _this.dictionary = {
+            '0': function () {
+                var s = "1[-20]+20";
+                if (_this.random && MathHelper.randInt(0, 100) < _this.splitChance) {
+                    s = "1[10]10";
+                }
+                return s;
+            },
+            '1': function () {
+                return "21";
+            },
+            '2': function () {
+                return '2';
             }
-            cursor.DrawLine(step);
+        };
+        _this.step = step;
+        _this._angle = angle;
+        _this.thickness = thickness;
+        _this.anglePart = BinaryTree.dif + (angle / 3);
+        _this.random = random;
+        _this.splitChance = splitChance;
+        _this.states = new Array();
+        var simpleDraw = function (cursor) {
+            if (MathHelper.randInt(0, 10) > 4) {
+                cursor.DrawLine(_this.CalcStep(), _this.thickness);
+            }
         };
         var actions = {
-            '0': simpleDraw,
+            '0': function (cursor) {
+                cursor.DrawLine(_this.CalcStep() * 0.75, 7.5, cursor.p5.color(BinaryTree.leafColors[MathHelper.randInt(0, BinaryTree.leafColors.length - 1)]));
+            },
             '1': simpleDraw,
             '2': simpleDraw,
             '[': function (cursor) {
-                _this.locations.push(cursor.loc.Copy());
-                var angle = _this.angle;
-                if (_this.random) {
-                    angle = MathHelper.randomize(angle);
-                }
-                cursor.loc.dir += angle;
+                _this.thickness *= 0.75;
+                _this.states.push(new State(cursor.loc.Copy(), _this.thickness));
+                cursor.loc.dir += _this.CalcAngle();
             },
             ']': function (cursor) {
-                cursor.loc.SetTo(_this.locations.pop());
-                var angle = _this.angle;
-                if (_this.random) {
-                    angle = MathHelper.randomize(angle);
-                }
-                cursor.loc.dir -= angle;
+                var state = _this.states.pop();
+                _this.thickness = state.thickness;
+                cursor.loc.SetTo(state.t);
+                cursor.loc.dir -= _this.CalcAngle();
+            },
+            '+': function (cursor) {
+                cursor.loc.dir += _this.CalcAngle();
+            },
+            '-': function (cursor) {
+                cursor.loc.dir -= _this.CalcAngle();
             }
         };
         _this.actions = actions;
         return _this;
     }
-    BinaryTree.dictionary = { '1': '12', '0': '1[0]0' };
-    BinaryTree.axiom = '0';
+    Object.defineProperty(BinaryTree.prototype, "angle", {
+        get: function () {
+            return this._angle;
+        },
+        set: function (v) {
+            this._angle = v;
+            this.anglePart = BinaryTree.dif + (v / 3);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    BinaryTree.prototype.CalcStep = function () {
+        return this.random ? MathHelper.randomize(this.step) : this.step;
+    };
+    BinaryTree.prototype.CalcAngle = function () {
+        return this._angle + (this.random ? MathHelper.randInt(0, this.anglePart) : 0);
+    };
+    BinaryTree.axiom = '2220';
+    BinaryTree.dif = 3;
+    BinaryTree.leafColors = [
+        [0, 102, 0],
+        [100, 200, 30],
+        [50, 135, 10],
+        [120, 120, 0]
+    ];
     return BinaryTree;
 }(L_System));
 var continueRendering = false;
@@ -148,30 +211,34 @@ continueRenderingCheckbox.onchange = function () {
 };
 var width = 1200;
 var height = 1200;
-var SpawnPoint = new Point(width / 2, height - 300);
+var SpawnPoint = new Point(width / 2, height - 100);
 var pWidth = 10;
 var SpawnTransform = new Transform(SpawnPoint, 90);
 var stepRange = document.getElementById("StepRange");
 var angleRange = document.getElementById("AngleRange");
-var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, true);
-stepRange.onchange = function () {
+var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
+function Update() {
+    binaryTree.EvolveTo(generation);
     binaryTree.step = +stepRange.value;
+    binaryTree.angle = +angleRange.value;
+    button.innerHTML = "Button " + generation;
+    SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
     _Draw();
+}
+stepRange.onchange = function () {
+    Update();
 };
 stepRange.onmousemove = function (e) {
     if (e.buttons) {
-        binaryTree.step = +stepRange.value;
-        _Draw();
+        Update();
     }
 };
 angleRange.onchange = function () {
-    binaryTree.angle = +angleRange.value;
-    _Draw();
+    Update();
 };
 angleRange.onmousemove = function (e) {
     if (e.buttons) {
-        binaryTree.angle = +angleRange.value;
-        _Draw();
+        Update();
     }
 };
 var generation = 1;
@@ -179,11 +246,8 @@ var SystemStateDisplay = document.getElementById("SystemStateDisplay");
 SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
 var button = document.getElementById("Button42");
 button.onclick = function () {
-    binaryTree.Evolve();
-    SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
     generation++;
-    button.innerHTML = "Button " + generation;
-    _Draw();
+    Update();
 };
 var MainCursor;
 function _Draw() {

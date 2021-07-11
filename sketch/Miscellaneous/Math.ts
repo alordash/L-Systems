@@ -4,6 +4,6 @@ class MathHelper {
     }
 
     static randomize(n: number) {
-        return n * this.randInt(0.9, 1.25);
+        return n * this.randInt(0.7, 1.3);
     }
 }

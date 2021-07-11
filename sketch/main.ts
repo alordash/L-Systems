@@ -14,7 +14,7 @@ continueRenderingCheckbox.onchange = function () {
 let width = 1200;
 let height = 1200;
 
-const SpawnPoint = new Point(width / 2, height - 300);
+const SpawnPoint = new Point(width / 2, height - 100);
 const pWidth = 10;
 
 const SpawnTransform = new Transform(SpawnPoint, 90);
@@ -22,27 +22,32 @@ const SpawnTransform = new Transform(SpawnPoint, 90);
 var stepRange = (<HTMLInputElement>document.getElementById("StepRange"));
 var angleRange = (<HTMLInputElement>document.getElementById("AngleRange"));
 
-let binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, true);
+let binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
+
+function Update() {
+    binaryTree.EvolveTo(generation);
+    binaryTree.step = +stepRange.value;
+    binaryTree.angle = +angleRange.value;
+    button.innerHTML = `Button ${generation}`;
+    SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+    _Draw();
+}
 
 stepRange.onchange = () => {
-    binaryTree.step = +stepRange.value;
-    _Draw();
+    Update();
 }
 stepRange.onmousemove = (e) => {
     if(e.buttons) {
-        binaryTree.step = +stepRange.value;
-        _Draw();
+        Update();
     }
 }
 
 angleRange.onchange = () => {
-    binaryTree.angle = +angleRange.value;
-    _Draw();
+    Update();
 }
 angleRange.onmousemove = (e) => {
     if(e.buttons) {
-        binaryTree.angle = +angleRange.value;
-        _Draw();
+        Update();
     }
 }
 
@@ -51,11 +56,8 @@ var SystemStateDisplay = document.getElementById("SystemStateDisplay");
 SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
 var button = document.getElementById("Button42");
 button.onclick = () => {
-    binaryTree.Evolve();
-    SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
     generation++;
-    button.innerHTML = `Button ${generation}`;
-    _Draw();
+    Update();
 }
 
 let MainCursor: Cursor;

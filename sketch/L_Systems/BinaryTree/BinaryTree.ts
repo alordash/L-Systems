@@ -2,48 +2,94 @@
 /// <reference path="../../Drawing/Geometry.ts" />
 
 class BinaryTree extends L_System {
-    static dictionary: DicType = { '1': '12', '0': '1[0]0' };
-    static axiom = '0';
+    dictionary: DicType = {
+        '0': () => {
+            let s = `1[-20]+20`;
+            if (this.random && MathHelper.randInt(0, 100) < this.splitChance) {
+                s = `1[10]10`;
+            }
+            return s;
+        },
+        '1': () => {
+            return `21`;
+        },
+        '2': () => {
+            return '2';
+        }
+    };
+    static axiom = '2220';
+    static dif = 3;
+    static leafColors = [
+        [0, 102, 0],
+        [100, 200, 30],
+        [50, 135, 10],
+        [120, 120, 0]
+    ];
 
     step: number;
-    angle: number;
+    private _angle: number;
+    thickness: number;
     random: boolean;
-    locations: Transform[];
+    splitChance: number;
+    states: State[];
 
-    constructor(step: number, angle: number, random: boolean) {
-        super(BinaryTree.dictionary, BinaryTree.axiom);
+    protected anglePart: number;
+
+    constructor(step: number, angle: number, thickness: number = 16, random: boolean = false, splitChance: number = 50) {
+        super(BinaryTree.axiom, () => { this.thickness = thickness; });
         this.step = step;
-        this.angle = angle;
+        this._angle = angle;
+        this.thickness = thickness;
+        this.anglePart = BinaryTree.dif + (angle / 3);
         this.random = random;
-        this.locations = new Array<Transform>();
+        this.splitChance = splitChance;
+        this.states = new Array<State>();
         const simpleDraw = (cursor: Cursor) => {
-            let step = this.step;
-            if(this.random) {
-                step = MathHelper.randomize(step);
+            if (MathHelper.randInt(0, 10) > 4) {
+                cursor.DrawLine(this.CalcStep(), this.thickness);
             }
-            cursor.DrawLine(step);
         }
         let actions: ActType = {
-            '0': simpleDraw,
+            '0': (cursor: Cursor) => {
+                cursor.DrawLine(this.CalcStep() * 0.75, 7.5, cursor.p5.color(BinaryTree.leafColors[MathHelper.randInt(0, BinaryTree.leafColors.length - 1)]));
+            },
             '1': simpleDraw,
             '2': simpleDraw,
             '[': (cursor: Cursor) => {
-                this.locations.push(cursor.loc.Copy());
-                let angle = this.angle;
-                if(this.random) {
-                    angle = MathHelper.randomize(angle);
-                }
-                cursor.loc.dir += angle;
+                this.thickness *= 0.75;
+                this.states.push(new State(cursor.loc.Copy(), this.thickness));
+                cursor.loc.dir += this.CalcAngle();
             },
             ']': (cursor: Cursor) => {
-                cursor.loc.SetTo(this.locations.pop());
-                let angle = this.angle;
-                if(this.random) {
-                    angle = MathHelper.randomize(angle);
-                }
-                cursor.loc.dir -= angle;
+                let state = this.states.pop();
+                this.thickness = state.thickness;
+                cursor.loc.SetTo(state.t);
+                cursor.loc.dir -= this.CalcAngle();
+            },
+            '+': (cursor: Cursor) => {
+                cursor.loc.dir += this.CalcAngle();
+            },
+            '-': (cursor: Cursor) => {
+                cursor.loc.dir -= this.CalcAngle();
             }
         }
         this.actions = actions;
+    }
+
+    public set angle(v: number) {
+        this._angle = v;
+        this.anglePart = BinaryTree.dif + (v / 3);
+    }
+
+    public get angle(): number {
+        return this._angle;
+    }
+
+    CalcStep() {
+        return this.random ? MathHelper.randomize(this.step) : this.step;
+    }
+
+    CalcAngle() {
+        return this._angle + (this.random ? MathHelper.randInt(0, this.anglePart) : 0);
     }
 }

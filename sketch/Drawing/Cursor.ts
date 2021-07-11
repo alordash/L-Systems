@@ -20,4 +20,8 @@ class Cursor {
         
         this.loc.pos = new Point(xNew, yNew);
     }
+
+    Turn(angle: number) {
+        this.loc.dir += angle;
+    }
 }
