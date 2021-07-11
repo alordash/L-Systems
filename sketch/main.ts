@@ -11,21 +11,36 @@ continueRenderingCheckbox.onchange = function () {
     continueRendering = continueRenderingCheckbox.checked;
 }
 
-let width = 800;
-let height = 800;
+let width = 1200;
+let height = 1200;
 
-const SpawnPoint = new Point(width / 2, height - 100);
+const SpawnPoint = new Point(width / 2, height - 300);
 const pWidth = 10;
 
 const SpawnTransform = new Transform(SpawnPoint, 90);
 
-let binaryTree = new BinaryTree(5, 45);
+var stepRange = (<HTMLInputElement>document.getElementById("StepRange"));
+var angleRange = (<HTMLInputElement>document.getElementById("AngleRange"));
 
+let binaryTree = new BinaryTree(+stepRange.value, +angleRange.value);
+
+stepRange.onmousemove = stepRange.onchange = () => {
+    binaryTree.step = +stepRange.value;
+}
+
+angleRange.onmousemove = angleRange.onchange = () => {
+    binaryTree.angle = +angleRange.value;
+}
+
+var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
-SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`
-document.getElementById("Button42").onclick = () => {
+SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+var button = document.getElementById("Button42");
+button.onclick = () => {
     binaryTree.Evolve();
     SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+    generation++;
+    button.innerHTML = `Button ${generation}`;
 }
 
 var p5Sketch = (_p: p5) => {
@@ -35,16 +50,15 @@ var p5Sketch = (_p: p5) => {
         canvas = _p.createCanvas(width, height);
         canvas.style('border', '#000000');
         canvas.style('borderStyle', 'solid');
+        canvas.style('border-width', '3px');
+        _p.fill(255);
+        _p.stroke(0);
+        _p.strokeWeight(2);
     };
 
     _p.draw = () => {
         if (continueRendering) {
             _p.background(225, 225, 255);
-
-            _p.fill(255);
-            _p.stroke(0);
-            _p.strokeWeight(2);
-            _p.line(MathHelper.randInt(0, width), MathHelper.randInt(0, height), MathHelper.randInt(0, width), MathHelper.randInt(0, height));
 
             _p.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
 

@@ -120,7 +120,7 @@ var BinaryTree = (function (_super) {
         _this.actions = actions;
         return _this;
     }
-    BinaryTree.dictionary = { '1': '11', '0': '1[0]0' };
+    BinaryTree.dictionary = { '1': '12', '0': '1[0]0' };
     BinaryTree.axiom = '0';
     return BinaryTree;
 }(L_System));
@@ -130,17 +130,29 @@ continueRenderingCheckbox.checked = continueRendering;
 continueRenderingCheckbox.onchange = function () {
     continueRendering = continueRenderingCheckbox.checked;
 };
-var width = 800;
-var height = 800;
-var SpawnPoint = new Point(width / 2, height - 100);
+var width = 1200;
+var height = 1200;
+var SpawnPoint = new Point(width / 2, height - 300);
 var pWidth = 10;
 var SpawnTransform = new Transform(SpawnPoint, 90);
-var binaryTree = new BinaryTree(5, 45);
+var stepRange = document.getElementById("StepRange");
+var angleRange = document.getElementById("AngleRange");
+var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value);
+stepRange.onmousemove = stepRange.onchange = function () {
+    binaryTree.step = +stepRange.value;
+};
+angleRange.onmousemove = angleRange.onchange = function () {
+    binaryTree.angle = +angleRange.value;
+};
+var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
 SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
-document.getElementById("Button42").onclick = function () {
+var button = document.getElementById("Button42");
+button.onclick = function () {
     binaryTree.Evolve();
     SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
+    generation++;
+    button.innerHTML = "Button " + generation;
 };
 var p5Sketch = function (_p) {
     var MainCursor = new Cursor(_p, SpawnTransform.Copy());
@@ -148,14 +160,14 @@ var p5Sketch = function (_p) {
         canvas = _p.createCanvas(width, height);
         canvas.style('border', '#000000');
         canvas.style('borderStyle', 'solid');
+        canvas.style('border-width', '3px');
+        _p.fill(255);
+        _p.stroke(0);
+        _p.strokeWeight(2);
     };
     _p.draw = function () {
         if (continueRendering) {
             _p.background(225, 225, 255);
-            _p.fill(255);
-            _p.stroke(0);
-            _p.strokeWeight(2);
-            _p.line(MathHelper.randInt(0, width), MathHelper.randInt(0, height), MathHelper.randInt(0, width), MathHelper.randInt(0, height));
             _p.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
             binaryTree.View(MainCursor);
             MainCursor.loc.SetTo(SpawnTransform);

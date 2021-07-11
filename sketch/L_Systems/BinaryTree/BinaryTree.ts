@@ -1,7 +1,7 @@
 /// <reference path="../../Drawing/Geometry.ts" />
 
 class BinaryTree extends L_System {
-    static dictionary: DicType = { '1': '11', '0': '1[0]0' };
+    static dictionary: DicType = { '1': '12', '0': '1[0]0' };
     static axiom = '0';
 
     step: number;
