@@ -177,7 +177,7 @@ var BinaryTree = (function (_super) {
         _this.splitChance = splitChance;
         _this.states = new Array();
         var simpleDraw = function (cursor) {
-            if (!_this.random || MathHelper.randInt(0, 10) > 4) {
+            if (!_this.random || MathHelper.randInt(0, 10) > 2) {
                 cursor.DrawLine(_this.CalcStep(), _this.thickness);
             }
         };
