@@ -1,7 +1,7 @@
 var UIControll = (function () {
     function UIControll() {
     }
-    UIControll.Init = function (continueRendering) {
+    UIControll.Init = function () {
         var continueRenderingCheckbox = document.getElementById("ContinueRendering");
         continueRenderingCheckbox.checked = continueRendering;
         continueRenderingCheckbox.onchange = function () {
@@ -145,6 +145,9 @@ var BinaryTree = (function (_super) {
                 if (_this.random && MathHelper.randInt(0, 100) < _this.splitChance) {
                     s = "1[10]10";
                 }
+                else if (!_this.random) {
+                    s = "1[20]20";
+                }
                 return s;
             },
             '1': function () {
@@ -162,7 +165,7 @@ var BinaryTree = (function (_super) {
         _this.splitChance = splitChance;
         _this.states = new Array();
         var simpleDraw = function (cursor) {
-            if (MathHelper.randInt(0, 10) > 4) {
+            if (!_this.random || MathHelper.randInt(0, 10) > 4) {
                 cursor.DrawLine(_this.CalcStep(), _this.thickness);
             }
         };
@@ -221,16 +224,19 @@ var BinaryTree = (function (_super) {
     return BinaryTree;
 }(L_System));
 var continueRendering = false;
-UIControll.Init(continueRendering);
+UIControll.Init();
 var stepRange = document.getElementById("StepRange");
 var angleRange = document.getElementById("AngleRange");
 var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
-function Update() {
+function Update(UI) {
+    if (UI === void 0) { UI = true; }
     binaryTree.EvolveTo(generation);
     binaryTree.step = +stepRange.value;
     binaryTree.angle = +angleRange.value;
-    button.innerHTML = "Button " + generation;
-    SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
+    if (UI) {
+        button.innerHTML = "Button " + generation;
+        SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
+    }
     _Draw();
 }
 stepRange.onchange = function () {
@@ -276,10 +282,7 @@ var p5Sketch = function (_p) {
     };
     _p.draw = function () {
         if (continueRendering) {
-            _p.background(225, 225, 255);
-            _p.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
-            binaryTree.View(MainCursor);
-            MainCursor.loc.SetTo(SpawnTransform);
+            Update(false);
         }
     };
 };

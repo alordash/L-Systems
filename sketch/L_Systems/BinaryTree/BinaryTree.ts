@@ -7,6 +7,8 @@ class BinaryTree extends L_System {
             let s = `1[-20]+20`;
             if (this.random && MathHelper.randInt(0, 100) < this.splitChance) {
                 s = `1[10]10`;
+            } else if (!this.random) {
+                s = `1[20]20`;
             }
             return s;
         },
@@ -45,7 +47,7 @@ class BinaryTree extends L_System {
         this.splitChance = splitChance;
         this.states = new Array<State>();
         const simpleDraw = (cursor: Cursor) => {
-            if (MathHelper.randInt(0, 10) > 4) {
+            if (!this.random || MathHelper.randInt(0, 10) > 4) {
                 cursor.DrawLine(this.CalcStep(), this.thickness);
             }
         }

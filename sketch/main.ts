@@ -7,19 +7,21 @@
 /// <reference path="constants.ts" />
 
 var continueRendering = false;
-UIControll.Init(continueRendering);
+UIControll.Init();
 
 var stepRange = (<HTMLInputElement>document.getElementById("StepRange"));
 var angleRange = (<HTMLInputElement>document.getElementById("AngleRange"));
 
 let binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
 
-function Update() {
+function Update(UI: boolean = true) {
     binaryTree.EvolveTo(generation);
     binaryTree.step = +stepRange.value;
     binaryTree.angle = +angleRange.value;
-    button.innerHTML = `Button ${generation}`;
-    SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+    if (UI) {
+        button.innerHTML = `Button ${generation}`;
+        SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+    }
     _Draw();
 }
 
@@ -27,7 +29,7 @@ stepRange.onchange = () => {
     Update();
 }
 stepRange.onmousemove = (e) => {
-    if(e.buttons) {
+    if (e.buttons) {
         Update();
     }
 }
@@ -36,7 +38,7 @@ angleRange.onchange = () => {
     Update();
 }
 angleRange.onmousemove = (e) => {
-    if(e.buttons) {
+    if (e.buttons) {
         Update();
     }
 }
@@ -75,12 +77,7 @@ var p5Sketch = (_p: p5) => {
 
     _p.draw = () => {
         if (continueRendering) {
-            _p.background(225, 225, 255);
-
-            _p.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
-
-            binaryTree.View(MainCursor);
-            MainCursor.loc.SetTo(SpawnTransform);
+            Update(false);
         }
     };
 };

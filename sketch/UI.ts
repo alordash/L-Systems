@@ -1,5 +1,5 @@
 abstract class UIControll {
-    static Init(continueRendering: boolean) {
+    static Init() {
         var continueRenderingCheckbox = <HTMLInputElement>document.getElementById("ContinueRendering");
         continueRenderingCheckbox.checked = continueRendering;
         continueRenderingCheckbox.onchange = function () {
