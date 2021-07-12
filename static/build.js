@@ -310,7 +310,9 @@ var p5Sketch = function (_p) {
         canvasElement.style('border', '#000000');
         canvasElement.style('borderStyle', 'solid');
         canvasElement.style('border-width', '3px');
-        UIControl.InitSpawnMoving(canvasElement.elt);
+        var element = canvasElement.elt;
+        document.getElementById('Editor').appendChild(element);
+        UIControl.InitSpawnMoving(element);
         _p.fill(255);
         _p.stroke(0);
         _p.strokeWeight(2);
