@@ -9,7 +9,7 @@
 var continueRendering = false;
 UIControl.InitRenderCheck();
 
-let binaryTree = new BinaryTree(10, 16, 16, true, 23);
+let binaryTree = new BinaryTree();
 
 UIControl.CreateParametersPanel(binaryTree);
 

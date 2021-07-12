@@ -168,7 +168,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _BinaryTree_thick, _BinaryTree_anglePart;
 class BinaryTree extends L_System {
-    constructor(step, angle, thickness = 16, random = false, splitChance = 50) {
+    constructor(step = 10, angle = 16, thickness = 16, random = true, splitChance = 23) {
         super(BinaryTree.axiom, () => { __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness, "f"); });
         this.dictionary = {
             '0': () => {
@@ -253,7 +253,7 @@ BinaryTree.leafColors = [
 ];
 var continueRendering = false;
 UIControl.InitRenderCheck();
-let binaryTree = new BinaryTree(20, 30, 16, true, 35);
+let binaryTree = new BinaryTree();
 UIControl.CreateParametersPanel(binaryTree);
 let evolveCounter = 0;
 let evolveTrigger = 5;

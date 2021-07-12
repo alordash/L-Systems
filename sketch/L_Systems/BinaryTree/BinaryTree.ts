@@ -38,7 +38,7 @@ class BinaryTree extends L_System {
 
     #anglePart: number;
 
-    constructor(step: number, angle: number, thickness: number = 16, random: boolean = false, splitChance: number = 50) {
+    constructor(step: number = 10, angle: number = 23, thickness: number = 16, random: boolean = true, splitChance: number = 23) {
         super(BinaryTree.axiom, () => { this.#thick = this.thickness; });
         this.step = step;
         this._angle = angle;
