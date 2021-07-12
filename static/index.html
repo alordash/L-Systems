@@ -15,8 +15,13 @@
       font-weight: 500;
       color: black;
       white-space: nowrap;
-      width: 100%;
       overflow-x: hidden;
+    }
+
+    .rangeParam {
+      position: absolute;
+      width: 150px;
+      left: 100px;
     }
   </style>
 </head>
@@ -27,11 +32,10 @@
     <label for="ContinueRendering">Continue Rendering</label>
   </div>
   <button id="Button42">Button42</button>
-  <div id="SystemStateDisplay" class="info">State: 1</div>
-  <input id="StepRange" type="range" min="0" style="position: absolute; width: 200px" max="20" step="0.01" value="10">
-  <br />
-  <input id="AngleRange" type="range" min="0" style="position: absolute; width: 200px" max="60" step="0.01" value="20">
-  <br/>
+  <div id="SystemStateDisplay" class="info" style="width: 100%;">State: 1</div>
+  <div id="Params" class="info" style="width: 275px; padding: 5px;">
+    <b>Parameters</b>
+  </div>
   <script src="./build.js"></script>
 </body>
 

@@ -50,6 +50,29 @@ var UIControl = (function () {
             Update(undefined, true);
         };
     };
+    UIControl.CreateNumberParameter = function (obj, key) {
+        var params = document.getElementById('Params');
+        params.innerHTML = params.innerHTML + "<br/>" + key + " <input id=\"" + key + "range\" type=\"range\" min=\"0\" class=\"rangeParam\" max=\"20\" step=\"0.01\" value=\"10\"><br />";
+    };
+    UIControl.CreateParametersPanel = function (system) {
+        console.log('system :>> ', system);
+        for (var _i = 0, _a = Object.entries(system); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            console.log('key, value, type :>> ', key, value, typeof value);
+            if (UIControl.allowedParametersTypes.includes(typeof value)) {
+                console.log("That is ok");
+            }
+            if (typeof value == 'number') {
+                UIControl.CreateNumberParameter(system, key);
+            }
+        }
+    };
+    UIControl.allowedParametersTypes = [
+        'number',
+        'string',
+        'boolean'
+    ];
+    UIControl.paramsFiller = "<b>Parameters</b><br />";
     return UIControl;
 }());
 var MathHelper = (function () {
@@ -237,9 +260,10 @@ var BinaryTree = (function (_super) {
 }(L_System));
 var continueRendering = false;
 UIControl.InitRenderCheck();
-var stepRange = document.getElementById("StepRange");
-var angleRange = document.getElementById("AngleRange");
+var stepRange = { value: 20 };
+var angleRange = { value: 30 };
 var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
+UIControl.CreateParametersPanel(binaryTree);
 var evolveCounter = 0;
 var evolveTrigger = 10;
 function Update(UI, evolve) {
@@ -259,22 +283,6 @@ function Update(UI, evolve) {
         SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
     }
 }
-stepRange.onchange = function () {
-    Update();
-};
-stepRange.onmousemove = function (e) {
-    if (e.buttons) {
-        Update();
-    }
-};
-angleRange.onchange = function () {
-    Update();
-};
-angleRange.onmousemove = function (e) {
-    if (e.buttons) {
-        Update();
-    }
-};
 var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
 SystemStateDisplay.innerHTML = "State: " + binaryTree.state;

@@ -9,10 +9,14 @@
 var continueRendering = false;
 UIControl.InitRenderCheck();
 
-var stepRange = (<HTMLInputElement>document.getElementById("StepRange"));
-var angleRange = (<HTMLInputElement>document.getElementById("AngleRange"));
+//var stepRange = (<HTMLInputElement>document.getElementById("StepRange"));
+//var angleRange = (<HTMLInputElement>document.getElementById("AngleRange"));
+var stepRange = { value: 20 };
+var angleRange = { value: 30 };
 
 let binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
+
+UIControl.CreateParametersPanel(binaryTree);
 
 let evolveCounter = 0;
 const evolveTrigger = 10;
@@ -31,7 +35,7 @@ function Update(UI = true, evolve = false) {
         SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
     }
 }
-
+/*
 stepRange.onchange = () => {
     Update();
 }
@@ -49,7 +53,7 @@ angleRange.onmousemove = (e) => {
         Update();
     }
 }
-
+*/
 var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
 SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
