@@ -19,7 +19,7 @@ abstract class UIControl {
                 Update(undefined, undefined, true);
             }
         }
-        canvas.onclick = () => {
+        canvas.onmousedown = () => {
             Update(undefined, true);
         }
     }

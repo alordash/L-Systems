@@ -14,7 +14,7 @@ let binaryTree = new BinaryTree(20, 30, 16, true, 35);
 UIControl.CreateParametersPanel(binaryTree);
 
 let evolveCounter = 0;
-const evolveTrigger = 10;
+let evolveTrigger = 5;
 function Update(UI = true, evolve = false, draw = false) {
     if (!evolve) {
         evolveCounter = (evolveCounter + 1) % evolveTrigger;
