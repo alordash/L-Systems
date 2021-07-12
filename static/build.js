@@ -1,15 +1,3 @@
-var UIControll = (function () {
-    function UIControll() {
-    }
-    UIControll.Init = function () {
-        var continueRenderingCheckbox = document.getElementById("ContinueRendering");
-        continueRenderingCheckbox.checked = continueRendering;
-        continueRenderingCheckbox.onchange = function () {
-            continueRendering = continueRenderingCheckbox.checked;
-        };
-    };
-    return UIControll;
-}());
 var Point = (function () {
     function Point(x, y) {
         this.x = x;
@@ -40,6 +28,30 @@ var height = 1200;
 var SpawnPoint = new Point(width / 2, height - 100);
 var pWidth = 10;
 var SpawnTransform = new Transform(SpawnPoint, 90);
+var UIControl = (function () {
+    function UIControl() {
+    }
+    UIControl.InitRenderCheck = function () {
+        var continueRenderingCheckbox = document.getElementById("ContinueRendering");
+        continueRenderingCheckbox.checked = continueRendering;
+        continueRenderingCheckbox.onchange = function () {
+            continueRendering = continueRenderingCheckbox.checked;
+        };
+    };
+    UIControl.InitSpawnMoving = function (canvas) {
+        canvas.onmousemove = function (e) {
+            if (e.buttons) {
+                SpawnPoint = new Point(e.offsetX, e.offsetY);
+                SpawnTransform.pos = SpawnPoint;
+                Update();
+            }
+        };
+        canvas.onclick = function () {
+            Update();
+        };
+    };
+    return UIControl;
+}());
 var MathHelper = (function () {
     function MathHelper() {
     }
@@ -224,7 +236,7 @@ var BinaryTree = (function (_super) {
     return BinaryTree;
 }(L_System));
 var continueRendering = false;
-UIControll.Init();
+UIControl.InitRenderCheck();
 var stepRange = document.getElementById("StepRange");
 var angleRange = document.getElementById("AngleRange");
 var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
@@ -276,6 +288,7 @@ var p5Sketch = function (_p) {
         canvasElement.style('border', '#000000');
         canvasElement.style('borderStyle', 'solid');
         canvasElement.style('border-width', '3px');
+        UIControl.InitSpawnMoving(canvasElement.elt);
         _p.fill(255);
         _p.stroke(0);
         _p.strokeWeight(2);

@@ -7,7 +7,7 @@
 /// <reference path="constants.ts" />
 
 var continueRendering = false;
-UIControll.Init();
+UIControl.InitRenderCheck();
 
 var stepRange = (<HTMLInputElement>document.getElementById("StepRange"));
 var angleRange = (<HTMLInputElement>document.getElementById("AngleRange"));
@@ -70,6 +70,7 @@ var p5Sketch = (_p: p5) => {
         canvasElement.style('border', '#000000');
         canvasElement.style('borderStyle', 'solid');
         canvasElement.style('border-width', '3px');
+        UIControl.InitSpawnMoving(<HTMLElement>canvasElement.elt);
         _p.fill(255);
         _p.stroke(0);
         _p.strokeWeight(2);
