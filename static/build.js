@@ -244,9 +244,45 @@ class KochCurve extends L_System {
 KochCurve.axiom = 'F';
 KochCurve.thickness = 3;
 KochCurve.direction = 0;
+class SierpinskiTriangle extends L_System {
+    constructor(step = new NumberParam(10, 0.01, 100), angle = new NumberParam(120, 0, 180)) {
+        super(SierpinskiTriangle.axiom, (transform) => {
+            transform.dir = SierpinskiTriangle.direction;
+        });
+        this.dictionary = {
+            'F': () => {
+                return `F-G+F+G-F`;
+            },
+            'G': () => {
+                return 'GG';
+            }
+        };
+        this.step = step;
+        this.angle = angle;
+        this.states = new Array();
+        const simpleDraw = (cursor) => {
+            cursor.DrawLine(this.step.v, SierpinskiTriangle.thickness);
+        };
+        let actions = {
+            'F': simpleDraw,
+            'G': simpleDraw,
+            '+': (cursor) => {
+                cursor.loc.dir += this.angle.v;
+            },
+            '-': (cursor) => {
+                cursor.loc.dir -= this.angle.v;
+            }
+        };
+        this.actions = actions;
+    }
+}
+SierpinskiTriangle.axiom = 'F-G-G';
+SierpinskiTriangle.thickness = 3;
+SierpinskiTriangle.direction = 90;
 const L_Systems_List = [
     BinaryTree,
-    KochCurve
+    KochCurve,
+    SierpinskiTriangle
 ];
 class UIControl {
     static InitRenderCheck() {
