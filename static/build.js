@@ -47,7 +47,7 @@ class Cursor {
     }
 }
 class L_System {
-    constructor(axiom, reset = () => { }) {
+    constructor(axiom = '', reset = () => { }) {
         this.state = this.axiom = axiom;
         this.reset = reset;
     }
@@ -224,6 +224,9 @@ class UIControl {
         list.onchange = () => {
             let system = L_Systems_List.find((x) => { return x.name == list.value; });
             console.log('system.name :>> ', system.name);
+            lSystem = new system();
+            UIControl.CreateParametersPanel(lSystem);
+            Update(true, true);
         };
         let editor = document.getElementById('Editor');
         document.body.insertBefore(list, editor);
@@ -260,6 +263,11 @@ class UIControl {
         params.appendChild(range);
     }
     static CreateParametersPanel(system) {
+        let ranges = document.getElementsByClassName('rangeParam');
+        for (let range of ranges) {
+            range.remove();
+        }
+        document.getElementById('Params').innerHTML = `<b>Parameters</b>`;
         console.log('system :>> ', system);
         for (let [key, value] of Object.entries(system)) {
             console.log('key, value, type :>> ', key, value, typeof value);
@@ -272,8 +280,8 @@ class UIControl {
 UIControl.paramsFiller = `<b>Parameters</b><br />`;
 var continueRendering = false;
 UIControl.InitRenderCheck();
-let binaryTree = new BinaryTree();
-UIControl.CreateParametersPanel(binaryTree);
+let lSystem = new BinaryTree();
+UIControl.CreateParametersPanel(lSystem);
 UIControl.CreateOptions();
 let evolveCounter = 0;
 let evolveTrigger = 5;
@@ -282,21 +290,21 @@ function Update(UI = true, evolve = false, draw = false) {
         evolveCounter = (evolveCounter + 1) % evolveTrigger;
     }
     if ((evolveCounter == 0 || evolve) && !draw) {
-        binaryTree.EvolveTo(generation);
+        lSystem.EvolveTo(generation);
         _Draw();
     }
     if (draw) {
-        binaryTree.reset();
+        lSystem.reset();
         _Draw();
     }
     if (UI) {
         button.innerHTML = `Button ${generation}`;
-        SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+        SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
     }
 }
 var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
-SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
 var button = document.getElementById("Button42");
 button.onclick = () => {
     generation++;
@@ -306,7 +314,7 @@ let MainCursor;
 function _Draw() {
     canvas.background(225, 225, 255);
     canvas.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
-    binaryTree.View(MainCursor);
+    lSystem.View(MainCursor);
     MainCursor.loc.SetTo(SpawnTransform);
 }
 var p5Sketch = (_p) => {

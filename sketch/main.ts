@@ -9,9 +9,9 @@
 var continueRendering = false;
 UIControl.InitRenderCheck();
 
-let binaryTree = new BinaryTree();
+let lSystem: L_System = new BinaryTree();
 
-UIControl.CreateParametersPanel(binaryTree);
+UIControl.CreateParametersPanel(lSystem);
 UIControl.CreateOptions();
 
 let evolveCounter = 0;
@@ -21,22 +21,22 @@ function Update(UI = true, evolve = false, draw = false) {
         evolveCounter = (evolveCounter + 1) % evolveTrigger;
     }
     if ((evolveCounter == 0 || evolve) && !draw) {
-        binaryTree.EvolveTo(generation);
+        lSystem.EvolveTo(generation);
         _Draw();
     }
-    if(draw) {
-        binaryTree.reset();
+    if (draw) {
+        lSystem.reset();
         _Draw();
     }
     if (UI) {
         button.innerHTML = `Button ${generation}`;
-        SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+        SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
     }
 }
 
 var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
-SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
+SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
 var button = document.getElementById("Button42");
 button.onclick = () => {
     generation++;
@@ -50,7 +50,7 @@ function _Draw() {
 
     canvas.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
 
-    binaryTree.View(MainCursor);
+    lSystem.View(MainCursor);
     MainCursor.loc.SetTo(SpawnTransform);
 }
 

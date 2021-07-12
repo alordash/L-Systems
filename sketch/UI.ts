@@ -37,6 +37,9 @@ abstract class UIControl {
         list.onchange = () => {
             let system = L_Systems_List.find((x) => { return x.name == list.value; });
             console.log('system.name :>> ', system.name);
+            lSystem = new system();
+            UIControl.CreateParametersPanel(lSystem);
+            Update(true, true);
         }
 
         let editor = document.getElementById('Editor');
@@ -74,6 +77,11 @@ abstract class UIControl {
     }
 
     static CreateParametersPanel(system: L_System) {
+        let ranges = document.getElementsByClassName('rangeParam');
+        for (let range of ranges) {
+            range.remove();
+        }
+        document.getElementById('Params').innerHTML = `<b>Parameters</b>`;
         console.log('system :>> ', system);
         for (let [key, value] of Object.entries(system)) {
             console.log('key, value, type :>> ', key, value, typeof value);

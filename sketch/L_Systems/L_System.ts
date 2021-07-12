@@ -10,7 +10,7 @@ abstract class L_System {
     state: string;
     actions: ActType;
     reset: () => void;
-    constructor(axiom: string, reset: () => void = () => { }) {
+    constructor(axiom: string = '', reset: () => void = () => { }) {
         this.state = this.axiom = axiom;
         this.reset = reset;
     }
