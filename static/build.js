@@ -100,7 +100,7 @@ L_System.propertyMark = '_';
 L_System.minMark = '_min';
 L_System.maxMark = '_max';
 class State {
-    constructor(t, thick) {
+    constructor(t, thick = 0) {
         this.t = t;
         this.thickness = thick;
     }
@@ -349,12 +349,53 @@ class DragonCurve extends L_System {
 DragonCurve.axiom = 'F';
 DragonCurve.thickness = 3;
 DragonCurve.direction = 180;
+class FractalPlant extends L_System {
+    constructor(step = new NumberParam(10, 0, 20), angle = new NumberParam(25, 0, 180)) {
+        super(FractalPlant.axiom, (transform) => {
+            transform.dir = FractalPlant.direction;
+        });
+        this.dictionary = {
+            'X': () => {
+                return 'F+[[X]-X]-F[-FX]+X';
+            },
+            'F': () => {
+                return `FF`;
+            }
+        };
+        this.step = step;
+        this.angle = angle;
+        this.states = new Array();
+        const simpleDraw = (cursor) => {
+            cursor.DrawLine(this.step.v, FractalPlant.thickness);
+        };
+        let actions = {
+            'F': simpleDraw,
+            '[': (cursor) => {
+                this.states.push(new State(cursor.loc.Copy()));
+            },
+            ']': (cursor) => {
+                cursor.loc.SetTo(this.states.pop().t);
+            },
+            '+': (cursor) => {
+                cursor.loc.dir += this.angle.v;
+            },
+            '-': (cursor) => {
+                cursor.loc.dir -= this.angle.v;
+            }
+        };
+        this.actions = actions;
+    }
+}
+FractalPlant.axiom = 'X';
+FractalPlant.thickness = 3;
+FractalPlant.direction = 90;
 const L_Systems_List = [
     BinaryTree,
     KochCurve,
     SierpinskiTriangle,
     SierpinskiArrowheadCurve,
-    DragonCurve
+    DragonCurve,
+    FractalPlant
 ];
 class UIControl {
     static InitRenderCheck() {

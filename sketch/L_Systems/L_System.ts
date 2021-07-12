@@ -74,7 +74,7 @@ abstract class L_System {
 class State {
     t: Transform;
     thickness: number;
-    constructor(t: Transform, thick: number) {
+    constructor(t: Transform, thick: number = 0) {
         this.t = t;
         this.thickness = thick;
     }
