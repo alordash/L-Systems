@@ -21,11 +21,11 @@ function Update(UI = true, evolve = false, draw = false) {
         evolveCounter = (evolveCounter + 1) % evolveTrigger;
     }
     if ((evolveCounter == 0 || evolve) && !draw) {
-        lSystem.EvolveTo(generation);
+        lSystem.EvolveTo(generation, SpawnTransform);
         _Draw();
     }
     if (draw) {
-        lSystem.reset();
+        lSystem.reset(SpawnTransform);
         _Draw();
     }
     if (UI) {
