@@ -3,10 +3,12 @@
 /// <reference path="KochCurve/KochCurve.ts" />
 /// <reference path="SierpinskiTriangle/SierpinskiTriangle.ts" />
 /// <reference path="SierpinskiArrowheadCurve/SierpinskiArrowheadCurve.ts" />
+/// <reference path="DragonCurve/DragonCurve.ts" />
 
 const L_Systems_List = [
     BinaryTree,
     KochCurve,
     SierpinskiTriangle,
-    SierpinskiArrowheadCurve
+    SierpinskiArrowheadCurve,
+    DragonCurve
 ];

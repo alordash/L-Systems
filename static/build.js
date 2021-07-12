@@ -278,7 +278,7 @@ class SierpinskiTriangle extends L_System {
 }
 SierpinskiTriangle.axiom = 'F-G-G';
 SierpinskiTriangle.thickness = 3;
-SierpinskiTriangle.direction = 0;
+SierpinskiTriangle.direction = 180;
 class SierpinskiArrowheadCurve extends L_System {
     constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(60, 0, 180)) {
         super(SierpinskiArrowheadCurve.axiom, (transform) => {
@@ -314,11 +314,47 @@ class SierpinskiArrowheadCurve extends L_System {
 SierpinskiArrowheadCurve.axiom = 'A';
 SierpinskiArrowheadCurve.thickness = 3;
 SierpinskiArrowheadCurve.direction = 0;
+class DragonCurve extends L_System {
+    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(90, 0, 180)) {
+        super(DragonCurve.axiom, (transform) => {
+            transform.dir = DragonCurve.direction;
+        });
+        this.dictionary = {
+            'F': () => {
+                return `F+G`;
+            },
+            'G': () => {
+                return 'F-G';
+            }
+        };
+        this.step = step;
+        this.angle = angle;
+        this.states = new Array();
+        const simpleDraw = (cursor) => {
+            cursor.DrawLine(this.step.v, DragonCurve.thickness);
+        };
+        let actions = {
+            'F': simpleDraw,
+            'G': simpleDraw,
+            '+': (cursor) => {
+                cursor.loc.dir += this.angle.v;
+            },
+            '-': (cursor) => {
+                cursor.loc.dir -= this.angle.v;
+            }
+        };
+        this.actions = actions;
+    }
+}
+DragonCurve.axiom = 'F';
+DragonCurve.thickness = 3;
+DragonCurve.direction = 180;
 const L_Systems_List = [
     BinaryTree,
     KochCurve,
     SierpinskiTriangle,
-    SierpinskiArrowheadCurve
+    SierpinskiArrowheadCurve,
+    DragonCurve
 ];
 class UIControl {
     static InitRenderCheck() {
