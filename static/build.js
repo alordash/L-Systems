@@ -47,7 +47,7 @@ var UIControl = (function () {
             }
         };
         canvas.onclick = function () {
-            Update();
+            Update(undefined, true);
         };
     };
     return UIControl;
@@ -240,16 +240,22 @@ UIControl.InitRenderCheck();
 var stepRange = document.getElementById("StepRange");
 var angleRange = document.getElementById("AngleRange");
 var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
-function Update(UI) {
+var evolveCounter = 0;
+var evolveTrigger = 10;
+function Update(UI, evolve) {
     if (UI === void 0) { UI = true; }
-    binaryTree.EvolveTo(generation);
-    binaryTree.step = +stepRange.value;
-    binaryTree.angle = +angleRange.value;
+    if (evolve === void 0) { evolve = false; }
+    evolveCounter = (evolveCounter + 1) % evolveTrigger;
+    if (evolveCounter == 0 || evolve) {
+        binaryTree.EvolveTo(generation);
+        binaryTree.step = +stepRange.value;
+        binaryTree.angle = +angleRange.value;
+        _Draw();
+    }
     if (UI) {
         button.innerHTML = "Button " + generation;
         SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
     }
-    _Draw();
 }
 stepRange.onchange = function () {
     Update();
@@ -273,7 +279,7 @@ SystemStateDisplay.innerHTML = "State: " + binaryTree.state;
 var button = document.getElementById("Button42");
 button.onclick = function () {
     generation++;
-    Update();
+    Update(undefined, true);
 };
 var MainCursor;
 function _Draw() {

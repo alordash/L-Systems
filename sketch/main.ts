@@ -14,15 +14,20 @@ var angleRange = (<HTMLInputElement>document.getElementById("AngleRange"));
 
 let binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
 
-function Update(UI: boolean = true) {
-    binaryTree.EvolveTo(generation);
-    binaryTree.step = +stepRange.value;
-    binaryTree.angle = +angleRange.value;
+let evolveCounter = 0;
+const evolveTrigger = 10;
+function Update(UI = true, evolve = false) {
+    evolveCounter = (evolveCounter + 1) % evolveTrigger;
+    if (evolveCounter == 0 || evolve) {
+        binaryTree.EvolveTo(generation);
+        binaryTree.step = +stepRange.value;
+        binaryTree.angle = +angleRange.value;
+        _Draw();
+    }
     if (UI) {
         button.innerHTML = `Button ${generation}`;
         SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
     }
-    _Draw();
 }
 
 stepRange.onchange = () => {
@@ -49,7 +54,7 @@ SystemStateDisplay.innerHTML = `State: ${binaryTree.state}`;
 var button = document.getElementById("Button42");
 button.onclick = () => {
     generation++;
-    Update();
+    Update(undefined, true);
 }
 
 let MainCursor: Cursor;

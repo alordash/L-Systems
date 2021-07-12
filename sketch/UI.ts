@@ -17,7 +17,7 @@ abstract class UIControl {
             }
         }
         canvas.onclick = () => {
-            Update();
+            Update(undefined, true);
         }
     }
 }
