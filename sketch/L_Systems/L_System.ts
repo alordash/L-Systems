@@ -3,6 +3,8 @@
 type DicType = Record<string, () => string>;
 type ActType = Record<string, (cursor: Cursor) => void>;
 abstract class L_System {
+    static propertyMark = '_';
+
     dictionary: DicType;
     axiom: string;
     state: string;

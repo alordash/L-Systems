@@ -31,24 +31,25 @@ class BinaryTree extends L_System {
     step: number;
     private _angle: number;
     thickness: number;
+    #thick: number;
     random: boolean;
     splitChance: number;
     states: State[];
 
-    protected anglePart: number;
+    #anglePart: number;
 
     constructor(step: number, angle: number, thickness: number = 16, random: boolean = false, splitChance: number = 50) {
-        super(BinaryTree.axiom, () => { this.thickness = thickness; });
+        super(BinaryTree.axiom, () => { this.#thick = this.thickness; });
         this.step = step;
         this._angle = angle;
-        this.thickness = thickness;
-        this.anglePart = BinaryTree.dif + (angle / 3);
+        this.#thick = this.thickness = thickness;
+        this.#anglePart = BinaryTree.dif + (angle / 3);
         this.random = random;
         this.splitChance = splitChance;
         this.states = new Array<State>();
         const simpleDraw = (cursor: Cursor) => {
             if (!this.random || MathHelper.randInt(0, 10) > 2) {
-                cursor.DrawLine(this.CalcStep(), this.thickness);
+                cursor.DrawLine(this.CalcStep(), this.#thick);
             }
         }
         let actions: ActType = {
@@ -58,13 +59,13 @@ class BinaryTree extends L_System {
             '1': simpleDraw,
             '2': simpleDraw,
             '[': (cursor: Cursor) => {
-                this.thickness *= 0.75;
-                this.states.push(new State(cursor.loc.Copy(), this.thickness));
+                this.#thick *= 0.75;
+                this.states.push(new State(cursor.loc.Copy(), this.#thick));
                 cursor.loc.dir += this.CalcAngle();
             },
             ']': (cursor: Cursor) => {
                 let state = this.states.pop();
-                this.thickness = state.thickness;
+                this.#thick = state.thickness;
                 cursor.loc.SetTo(state.t);
                 cursor.loc.dir -= this.CalcAngle();
             },
@@ -80,7 +81,7 @@ class BinaryTree extends L_System {
 
     public set angle(v: number) {
         this._angle = v;
-        this.anglePart = BinaryTree.dif + (v / 3);
+        this.#anglePart = BinaryTree.dif + (v / 3);
     }
 
     public get angle(): number {
@@ -92,6 +93,6 @@ class BinaryTree extends L_System {
     }
 
     CalcAngle() {
-        return this._angle + (this.random ? MathHelper.randInt(0, this.anglePart) : 0);
+        return this._angle + (this.random ? MathHelper.randInt(0, this.#anglePart) : 0);
     }
 }

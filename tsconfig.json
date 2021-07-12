@@ -7,8 +7,7 @@
     "removeComments": true,
     "sourceMap": true,
     "outFile": "./static/build.js",
-    "noImplicitAny": true,
-    "target": "es5",
+    "target": "ES6",
     "moduleResolution": "node"
   }
 }
