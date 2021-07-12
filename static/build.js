@@ -50,9 +50,15 @@ var UIControl = (function () {
             Update(undefined, true);
         };
     };
+    UIControl.RangeFormat = function (key) {
+        return key + "range";
+    };
     UIControl.CreateNumberParameter = function (obj, key) {
         var params = document.getElementById('Params');
-        params.innerHTML = params.innerHTML + "<br/>" + key + " <input id=\"" + key + "range\" type=\"range\" min=\"0\" class=\"rangeParam\" max=\"20\" step=\"0.01\" value=\"10\"><br />";
+        var id = UIControl.RangeFormat(key);
+        params.innerHTML = params.innerHTML + "<br/>" + key + " <input id=\"" + id + "\" type=\"range\" min=\"0\" class=\"rangeParam\" max=\"20\" step=\"0.01\" value=\"10\">";
+        var range = document.getElementById(id);
+        console.log('range.id :>> ', range.id);
     };
     UIControl.CreateParametersPanel = function (system) {
         console.log('system :>> ', system);

@@ -29,9 +29,16 @@ abstract class UIControl {
         }
     }
 
+    static RangeFormat(key: string) {
+        return `${key}range`;
+    }
+
     static CreateNumberParameter(obj: object, key: string) {
         const params = document.getElementById('Params');
-        params.innerHTML = `${params.innerHTML}<br/>${key} <input id="${key}range" type="range" min="0" class="rangeParam" max="20" step="0.01" value="10"><br />`
+        let id = UIControl.RangeFormat(key);
+        params.innerHTML = `${params.innerHTML}<br/>${key} <input id="${id}" type="range" min="0" class="rangeParam" max="20" step="0.01" value="10">`;
+        let range = document.getElementById(id);
+        console.log('range.id :>> ', range.id);
     }
 
     static CreateParametersPanel(system: object) {
