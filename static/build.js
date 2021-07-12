@@ -245,7 +245,7 @@ KochCurve.axiom = 'F';
 KochCurve.thickness = 3;
 KochCurve.direction = 0;
 class SierpinskiTriangle extends L_System {
-    constructor(step = new NumberParam(10, 0.01, 100), angle = new NumberParam(120, 0, 180)) {
+    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(120, 0, 180)) {
         super(SierpinskiTriangle.axiom, (transform) => {
             transform.dir = SierpinskiTriangle.direction;
         });
@@ -278,11 +278,47 @@ class SierpinskiTriangle extends L_System {
 }
 SierpinskiTriangle.axiom = 'F-G-G';
 SierpinskiTriangle.thickness = 3;
-SierpinskiTriangle.direction = 90;
+SierpinskiTriangle.direction = 0;
+class SierpinskiArrowheadCurve extends L_System {
+    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(60, 0, 180)) {
+        super(SierpinskiArrowheadCurve.axiom, (transform) => {
+            transform.dir = SierpinskiArrowheadCurve.direction;
+        });
+        this.dictionary = {
+            'A': () => {
+                return `B-A-B`;
+            },
+            'B': () => {
+                return 'A+B+A';
+            }
+        };
+        this.step = step;
+        this.angle = angle;
+        this.states = new Array();
+        const simpleDraw = (cursor) => {
+            cursor.DrawLine(this.step.v, SierpinskiArrowheadCurve.thickness);
+        };
+        let actions = {
+            'A': simpleDraw,
+            'B': simpleDraw,
+            '+': (cursor) => {
+                cursor.loc.dir += this.angle.v;
+            },
+            '-': (cursor) => {
+                cursor.loc.dir -= this.angle.v;
+            }
+        };
+        this.actions = actions;
+    }
+}
+SierpinskiArrowheadCurve.axiom = 'A';
+SierpinskiArrowheadCurve.thickness = 3;
+SierpinskiArrowheadCurve.direction = 0;
 const L_Systems_List = [
     BinaryTree,
     KochCurve,
-    SierpinskiTriangle
+    SierpinskiTriangle,
+    SierpinskiArrowheadCurve
 ];
 class UIControl {
     static InitRenderCheck() {

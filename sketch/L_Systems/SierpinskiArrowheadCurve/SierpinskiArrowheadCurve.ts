@@ -1,36 +1,36 @@
 /// <reference path="../../Miscellaneous/Math.ts" />
 /// <reference path="../../Drawing/Geometry.ts" />
 
-class SierpinskiTriangle extends L_System {
+class SierpinskiArrowheadCurve extends L_System {
     dictionary: DicType = {
-        'F': () => {
-            return `F-G+F+G-F`;
+        'A': () => {
+            return `B-A-B`;
         },
-        'G': () => {
-            return 'GG';
+        'B': () => {
+            return 'A+B+A';
         }
     };
-    static axiom = 'F-G-G';
+    static axiom = 'A';
     static thickness = 3;
-    static direction = 180;
+    static direction = 0;
 
     step: NumberParam;
     angle: NumberParam;
     states: State[];
 
-    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(120, 0, 180)) {
-        super(SierpinskiTriangle.axiom, (transform: Transform) => {
-            transform.dir = SierpinskiTriangle.direction;
+    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(60, 0, 180)) {
+        super(SierpinskiArrowheadCurve.axiom, (transform: Transform) => {
+            transform.dir = SierpinskiArrowheadCurve.direction;
         });
         this.step = step;
         this.angle = angle;
         this.states = new Array<State>();
         const simpleDraw = (cursor: Cursor) => {
-            cursor.DrawLine(this.step.v, SierpinskiTriangle.thickness);
+            cursor.DrawLine(this.step.v, SierpinskiArrowheadCurve.thickness);
         }
         let actions: ActType = {
-            'F': simpleDraw,
-            'G': simpleDraw,
+            'A': simpleDraw,
+            'B': simpleDraw,
             '+': (cursor: Cursor) => {
                 cursor.loc.dir += this.angle.v;
             },
