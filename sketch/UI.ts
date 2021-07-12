@@ -53,7 +53,8 @@ abstract class UIControl {
     }
 
     static CreateNumberParameter(obj: L_System, key: string) {
-        if (key[0] == L_System.propertyMark) {
+        let isProperty = key[0] == L_System.propertyMark;
+        if (isProperty) {
             key = key.substring(1);
         }
         let value = obj[key];
@@ -65,15 +66,23 @@ abstract class UIControl {
 
         let range = document.createElement("input");
         range.id = UIControl.RangeFormat(key);
-        range.type = 'range'; range.className = 'rangeParam'; range.min = `${value.min}`; range.max = `${value.max}`; range.step = '0.1'; range.value = `${obj[key]}`;
+        range.type = 'range'; range.className = 'rangeParam'; range.min = `${value.min}`; range.max = `${value.max}`; range.step = '0.1'; range.value = `${isProperty ? obj[key] : obj[key].v}`;
         range.onchange = () => {
             console.log(`For ${key}`);
-            obj[key].v = +range.value;
+            if (isProperty) {
+                obj[key] = +range.value;
+            } else {
+                obj[key].v = +range.value;
+            }
             Update(undefined, true);
         }
         range.onmousemove = (e) => {
             if (e.buttons) {
-                obj[key].v = +range.value;
+                if (isProperty) {
+                    obj[key] = +range.value;
+                } else {
+                    obj[key].v = +range.value;
+                }
                 Update();
             }
         }

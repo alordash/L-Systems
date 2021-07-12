@@ -39,7 +39,7 @@ class BinaryTree extends L_System {
     #thick: number;
     #anglePart: number;
 
-    constructor(step = new NumberParam(10, 0, 100), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random: boolean = true, splitChance = new NumberParam(23, 0, 100)) {
+    constructor(step = new NumberParam(10, 0, 50), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random: boolean = true, splitChance = new NumberParam(23, 0, 100)) {
         super(BinaryTree.axiom, (transform: Transform) => {
             this.#thick = this.thickness.v;
             transform.dir = BinaryTree.direction;

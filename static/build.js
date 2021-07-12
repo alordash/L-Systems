@@ -126,7 +126,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _BinaryTree_thick, _BinaryTree_anglePart;
 class BinaryTree extends L_System {
-    constructor(step = new NumberParam(10, 0, 100), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random = true, splitChance = new NumberParam(23, 0, 100)) {
+    constructor(step = new NumberParam(10, 0, 50), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random = true, splitChance = new NumberParam(23, 0, 100)) {
         super(BinaryTree.axiom, (transform) => {
             __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness.v, "f");
             transform.dir = BinaryTree.direction;
@@ -292,7 +292,8 @@ class UIControl {
         return `${key}range`;
     }
     static CreateNumberParameter(obj, key) {
-        if (key[0] == L_System.propertyMark) {
+        let isProperty = key[0] == L_System.propertyMark;
+        if (isProperty) {
             key = key.substring(1);
         }
         let value = obj[key];
@@ -306,15 +307,25 @@ class UIControl {
         range.min = `${value.min}`;
         range.max = `${value.max}`;
         range.step = '0.1';
-        range.value = `${obj[key]}`;
+        range.value = `${isProperty ? obj[key] : obj[key].v}`;
         range.onchange = () => {
             console.log(`For ${key}`);
-            obj[key].v = +range.value;
+            if (isProperty) {
+                obj[key] = +range.value;
+            }
+            else {
+                obj[key].v = +range.value;
+            }
             Update(undefined, true);
         };
         range.onmousemove = (e) => {
             if (e.buttons) {
-                obj[key].v = +range.value;
+                if (isProperty) {
+                    obj[key] = +range.value;
+                }
+                else {
+                    obj[key].v = +range.value;
+                }
                 Update();
             }
         };
