@@ -1,13 +1,14 @@
-var MathHelper = (function () {
-    function MathHelper() {
+var UIControll = (function () {
+    function UIControll() {
     }
-    MathHelper.randInt = function (min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+    UIControll.Init = function (continueRendering) {
+        var continueRenderingCheckbox = document.getElementById("ContinueRendering");
+        continueRenderingCheckbox.checked = continueRendering;
+        continueRenderingCheckbox.onchange = function () {
+            continueRendering = continueRenderingCheckbox.checked;
+        };
     };
-    MathHelper.randomize = function (n) {
-        return n * this.randInt(0.7, 1.3);
-    };
-    return MathHelper;
+    return UIControll;
 }());
 var Point = (function () {
     function Point(x, y) {
@@ -33,6 +34,22 @@ var Transform = (function () {
         this.dir = t.dir;
     };
     return Transform;
+}());
+var width = 1200;
+var height = 1200;
+var SpawnPoint = new Point(width / 2, height - 100);
+var pWidth = 10;
+var SpawnTransform = new Transform(SpawnPoint, 90);
+var MathHelper = (function () {
+    function MathHelper() {
+    }
+    MathHelper.randInt = function (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+    MathHelper.randomize = function (n) {
+        return n * this.randInt(0.7, 1.3);
+    };
+    return MathHelper;
 }());
 var Cursor = (function () {
     function Cursor(p5, loc) {
@@ -204,16 +221,7 @@ var BinaryTree = (function (_super) {
     return BinaryTree;
 }(L_System));
 var continueRendering = false;
-var continueRenderingCheckbox = document.getElementById("ContinueRendering");
-continueRenderingCheckbox.checked = continueRendering;
-continueRenderingCheckbox.onchange = function () {
-    continueRendering = continueRenderingCheckbox.checked;
-};
-var width = 1200;
-var height = 1200;
-var SpawnPoint = new Point(width / 2, height - 100);
-var pWidth = 10;
-var SpawnTransform = new Transform(SpawnPoint, 90);
+UIControll.Init(continueRendering);
 var stepRange = document.getElementById("StepRange");
 var angleRange = document.getElementById("AngleRange");
 var binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 35);
@@ -258,7 +266,7 @@ function _Draw() {
 }
 var p5Sketch = function (_p) {
     _p.setup = function () {
-        canvasElement = _p.createCanvas(width, height);
+        var canvasElement = _p.createCanvas(width, height);
         canvasElement.style('border', '#000000');
         canvasElement.style('borderStyle', 'solid');
         canvasElement.style('border-width', '3px');
@@ -275,7 +283,6 @@ var p5Sketch = function (_p) {
         }
     };
 };
-var canvasElement;
 var canvas;
 function main() {
     console.log('MathHelper.randInt(100,200) :>> ', MathHelper.randInt(100, 200));
