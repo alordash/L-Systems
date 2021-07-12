@@ -21,7 +21,7 @@ class Transform {
         this.dir = t.dir;
     }
 }
-let width = 1200;
+let width = 2000;
 let height = 1200;
 let SpawnPoint = new Point(width / 2, height - 100);
 const pWidth = 10;
