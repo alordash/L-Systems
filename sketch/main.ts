@@ -3,21 +3,11 @@
 /// <reference path="Drawing/Cursor.ts" />
 /// <reference path="L_Systems/L_System.ts" />
 /// <reference path="L_Systems/BinaryTree/BinaryTree.ts" />
+/// <reference path="UI.ts" />
+/// <reference path="constants.ts" />
 
 var continueRendering = false;
-var continueRenderingCheckbox = <HTMLInputElement>document.getElementById("ContinueRendering");
-continueRenderingCheckbox.checked = continueRendering;
-continueRenderingCheckbox.onchange = function () {
-    continueRendering = continueRenderingCheckbox.checked;
-}
-
-let width = 1200;
-let height = 1200;
-
-const SpawnPoint = new Point(width / 2, height - 100);
-const pWidth = 10;
-
-const SpawnTransform = new Transform(SpawnPoint, 90);
+UIControll.Init(continueRendering);
 
 var stepRange = (<HTMLInputElement>document.getElementById("StepRange"));
 var angleRange = (<HTMLInputElement>document.getElementById("AngleRange"));
@@ -74,7 +64,7 @@ function _Draw() {
 var p5Sketch = (_p: p5) => {
 
     _p.setup = () => {
-        canvasElement = _p.createCanvas(width, height);
+        let canvasElement = _p.createCanvas(width, height);
         canvasElement.style('border', '#000000');
         canvasElement.style('borderStyle', 'solid');
         canvasElement.style('border-width', '3px');
@@ -95,7 +85,6 @@ var p5Sketch = (_p: p5) => {
     };
 };
 
-let canvasElement: p5.Renderer;
 let canvas: p5;
 
 function main() {

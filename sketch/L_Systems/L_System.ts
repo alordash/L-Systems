@@ -2,7 +2,7 @@
 
 type DicType = Record<string, () => string>;
 type ActType = Record<string, (cursor: Cursor) => void>;
-class L_System {
+abstract class L_System {
     dictionary: DicType;
     axiom: string;
     state: string;
