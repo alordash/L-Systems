@@ -54,7 +54,7 @@ class BinaryTree extends L_System {
         }
         let actions: ActType = {
             '0': (cursor: Cursor) => {
-                cursor.DrawLine(this.CalcStep() * 0.75, 7.5, cursor.p5.color(BinaryTree.leafColors[MathHelper.randInt(0, BinaryTree.leafColors.length - 1)]));
+                cursor.DrawLine(this.CalcStep() * 0.75, Math.max(7.5, this.#thick * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randInt(0, BinaryTree.leafColors.length - 1)]));
             },
             '1': simpleDraw,
             '2': simpleDraw,
