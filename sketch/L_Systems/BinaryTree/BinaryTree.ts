@@ -5,7 +5,7 @@ class BinaryTree extends L_System {
     dictionary: DicType = {
         '0': () => {
             let s = `1[-20]+20`;
-            if (this.random && MathHelper.randInt(0, 100) < this.splitChance) {
+            if (this.random && MathHelper.randInt(0, 100) < this.splitChance.v) {
                 s = `1[10]10`;
             } else if (!this.random) {
                 s = `1[20]20`;
@@ -29,25 +29,25 @@ class BinaryTree extends L_System {
         [120, 120, 0]
     ];
 
-    step: number;
-    private _angle: number;
-    thickness: number;
-    #thick: number;
+    step: NumberParam;
+    private _angle: NumberParam;
+    thickness: NumberParam;
     random: boolean;
-    splitChance: number;
+    splitChance: NumberParam;
     states: State[];
 
+    #thick: number;
     #anglePart: number;
 
-    constructor(step: number = 10, angle: number = 23, thickness: number = 16, random: boolean = true, splitChance: number = 23) {
+    constructor(step = new NumberParam(10, 0, 100), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random: boolean = true, splitChance = new NumberParam(23, 0, 100)) {
         super(BinaryTree.axiom, (transform: Transform) => {
-            this.#thick = this.thickness;
+            this.#thick = this.thickness.v;
             transform.dir = BinaryTree.direction;
         });
         this.step = step;
         this._angle = angle;
-        this.#thick = this.thickness = thickness;
-        this.#anglePart = BinaryTree.dif + (angle / 3);
+        this.#thick = (this.thickness = thickness).v;
+        this.#anglePart = BinaryTree.dif + (angle.v / 3);
         this.random = random;
         this.splitChance = splitChance;
         this.states = new Array<State>();
@@ -84,19 +84,19 @@ class BinaryTree extends L_System {
     }
 
     public set angle(v: number) {
-        this._angle = v;
+        this._angle.v = v;
         this.#anglePart = BinaryTree.dif + (v / 3);
     }
 
     public get angle(): number {
-        return this._angle;
+        return this._angle.v;
     }
 
     CalcStep() {
-        return this.random ? MathHelper.randomize(this.step) : this.step;
+        return this.random ? MathHelper.randomize(this.step.v) : this.step.v;
     }
 
     CalcAngle() {
-        return this._angle + (this.random ? MathHelper.randInt(0, this.#anglePart) : 0);
+        return this._angle.v + (this.random ? MathHelper.randInt(0, this.#anglePart) : 0);
     }
 }

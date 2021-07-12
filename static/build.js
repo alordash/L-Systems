@@ -47,6 +47,23 @@ class Cursor {
         this.loc.dir += angle;
     }
 }
+class NumberParam {
+    constructor(v, min = v - 30, max = v + 30) {
+        this._v = v;
+        this.min = min;
+        this.max = max;
+    }
+    get v() {
+        return this._v;
+    }
+    set v(v) {
+        this._v = v;
+        if (this._v < this.min)
+            this._v = this.min;
+        else if (this._v > this.max)
+            this._v = this.max;
+    }
+}
 class L_System {
     constructor(axiom = '', reset = () => { }) {
         this.state = this.axiom = axiom;
@@ -80,6 +97,8 @@ class L_System {
     }
 }
 L_System.propertyMark = '_';
+L_System.minMark = '_min';
+L_System.maxMark = '_max';
 class State {
     constructor(t, thick) {
         this.t = t;
@@ -107,15 +126,15 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _BinaryTree_thick, _BinaryTree_anglePart;
 class BinaryTree extends L_System {
-    constructor(step = 10, angle = 23, thickness = 16, random = true, splitChance = 23) {
+    constructor(step = new NumberParam(10, 0, 100), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random = true, splitChance = new NumberParam(23, 0, 100)) {
         super(BinaryTree.axiom, (transform) => {
-            __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness, "f");
+            __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness.v, "f");
             transform.dir = BinaryTree.direction;
         });
         this.dictionary = {
             '0': () => {
                 let s = `1[-20]+20`;
-                if (this.random && MathHelper.randInt(0, 100) < this.splitChance) {
+                if (this.random && MathHelper.randInt(0, 100) < this.splitChance.v) {
                     s = `1[10]10`;
                 }
                 else if (!this.random) {
@@ -134,8 +153,8 @@ class BinaryTree extends L_System {
         _BinaryTree_anglePart.set(this, void 0);
         this.step = step;
         this._angle = angle;
-        __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness = thickness, "f");
-        __classPrivateFieldSet(this, _BinaryTree_anglePart, BinaryTree.dif + (angle / 3), "f");
+        __classPrivateFieldSet(this, _BinaryTree_thick, (this.thickness = thickness).v, "f");
+        __classPrivateFieldSet(this, _BinaryTree_anglePart, BinaryTree.dif + (angle.v / 3), "f");
         this.random = random;
         this.splitChance = splitChance;
         this.states = new Array();
@@ -171,17 +190,17 @@ class BinaryTree extends L_System {
         this.actions = actions;
     }
     set angle(v) {
-        this._angle = v;
+        this._angle.v = v;
         __classPrivateFieldSet(this, _BinaryTree_anglePart, BinaryTree.dif + (v / 3), "f");
     }
     get angle() {
-        return this._angle;
+        return this._angle.v;
     }
     CalcStep() {
-        return this.random ? MathHelper.randomize(this.step) : this.step;
+        return this.random ? MathHelper.randomize(this.step.v) : this.step.v;
     }
     CalcAngle() {
-        return this._angle + (this.random ? MathHelper.randInt(0, __classPrivateFieldGet(this, _BinaryTree_anglePart, "f")) : 0);
+        return this._angle.v + (this.random ? MathHelper.randInt(0, __classPrivateFieldGet(this, _BinaryTree_anglePart, "f")) : 0);
     }
 }
 _BinaryTree_thick = new WeakMap(), _BinaryTree_anglePart = new WeakMap();
@@ -195,7 +214,7 @@ BinaryTree.leafColors = [
     [120, 120, 0]
 ];
 class KochCurve extends L_System {
-    constructor(step = 10, angle = 90) {
+    constructor(step = new NumberParam(10, 0.01, 100), angle = new NumberParam(90, 0, 180)) {
         super(KochCurve.axiom, (transform) => {
             transform.dir = KochCurve.direction;
         });
@@ -208,15 +227,15 @@ class KochCurve extends L_System {
         this.angle = angle;
         this.states = new Array();
         const simpleDraw = (cursor) => {
-            cursor.DrawLine(this.step, KochCurve.thickness);
+            cursor.DrawLine(this.step.v, KochCurve.thickness);
         };
         let actions = {
             'F': simpleDraw,
             '+': (cursor) => {
-                cursor.loc.dir += this.angle;
+                cursor.loc.dir += this.angle.v;
             },
             '-': (cursor) => {
-                cursor.loc.dir -= this.angle;
+                cursor.loc.dir -= this.angle.v;
             }
         };
         this.actions = actions;
@@ -276,25 +295,26 @@ class UIControl {
         if (key[0] == L_System.propertyMark) {
             key = key.substring(1);
         }
+        let value = obj[key];
         const params = document.getElementById('Params');
         params.appendChild(document.createElement('br'));
         params.appendChild(document.createTextNode(key));
         let range = document.createElement("input");
         range.id = UIControl.RangeFormat(key);
         range.type = 'range';
-        range.min = '0';
         range.className = 'rangeParam';
-        range.max = '40';
-        range.step = 'any';
+        range.min = `${value.min}`;
+        range.max = `${value.max}`;
+        range.step = '0.1';
         range.value = `${obj[key]}`;
         range.onchange = () => {
             console.log(`For ${key}`);
-            obj[key] = +range.value;
+            obj[key].v = +range.value;
             Update(undefined, true);
         };
         range.onmousemove = (e) => {
             if (e.buttons) {
-                obj[key] = +range.value;
+                obj[key].v = +range.value;
                 Update();
             }
         };
@@ -309,7 +329,7 @@ class UIControl {
         console.log('system :>> ', system);
         for (let [key, value] of Object.entries(system)) {
             console.log('key, value, type :>> ', key, value, typeof value);
-            if (typeof value == 'number') {
+            if (value instanceof NumberParam) {
                 UIControl.CreateNumberParameter(system, key);
             }
         }

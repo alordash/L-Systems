@@ -2,8 +2,34 @@
 
 type DicType = Record<string, () => string>;
 type ActType = Record<string, (cursor: Cursor) => void>;
+
+class NumberParam {
+    _v: number;
+    min: number;
+    max: number;
+
+    constructor(v: number, min = v - 30, max = v + 30) {
+        this._v = v; this.min = min; this.max = max;
+    }
+
+
+    public get v(): number {
+        return this._v;
+    }
+
+    public set v(v: number) {
+        this._v = v;
+        if (this._v < this.min)
+            this._v = this.min;
+        else if (this._v > this.max)
+            this._v = this.max;
+    }
+}
+
 abstract class L_System {
     static propertyMark = '_';
+    static minMark = '_min';
+    static maxMark = '_max';
 
     dictionary: DicType;
     axiom: string;

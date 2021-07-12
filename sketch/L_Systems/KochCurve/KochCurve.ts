@@ -11,11 +11,11 @@ class KochCurve extends L_System {
     static thickness = 3;
     static direction = 0;
 
-    step: number;
-    angle: number;
+    step: NumberParam;
+    angle: NumberParam;
     states: State[];
 
-    constructor(step: number = 10, angle: number = 90) {
+    constructor(step = new NumberParam(10, 0.01, 100), angle = new NumberParam(90, 0, 180)) {
         super(KochCurve.axiom, (transform: Transform) => {
             transform.dir = KochCurve.direction;
         });
@@ -23,15 +23,15 @@ class KochCurve extends L_System {
         this.angle = angle;
         this.states = new Array<State>();
         const simpleDraw = (cursor: Cursor) => {
-            cursor.DrawLine(this.step, KochCurve.thickness);
+            cursor.DrawLine(this.step.v, KochCurve.thickness);
         }
         let actions: ActType = {
             'F': simpleDraw,
             '+': (cursor: Cursor) => {
-                cursor.loc.dir += this.angle;
+                cursor.loc.dir += this.angle.v;
             },
             '-': (cursor: Cursor) => {
-                cursor.loc.dir -= this.angle;
+                cursor.loc.dir -= this.angle.v;
             }
         }
         this.actions = actions;
