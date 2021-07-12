@@ -1,3 +1,5 @@
+/// <reference path="Drawing/Geometry.ts" />
+
 let width = 1200;
 let height = 1200;
 
