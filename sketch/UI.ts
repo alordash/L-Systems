@@ -38,8 +38,10 @@ abstract class UIControl {
             let system = L_Systems_List.find((x) => { return x.name == list.value; });
             console.log('system.name :>> ', system.name);
             lSystem = new system();
+            lSystem.reset(SpawnTransform);
             UIControl.CreateParametersPanel(lSystem);
             Update(true, true);
+            _Draw();
         }
 
         let editor = document.getElementById('Editor');

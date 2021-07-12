@@ -21,6 +21,7 @@ class BinaryTree extends L_System {
     };
     static axiom = '2220';
     static dif = 3;
+    static direction = 90;
     static leafColors = [
         [0, 102, 0],
         [100, 200, 30],
@@ -39,7 +40,10 @@ class BinaryTree extends L_System {
     #anglePart: number;
 
     constructor(step: number = 10, angle: number = 23, thickness: number = 16, random: boolean = true, splitChance: number = 23) {
-        super(BinaryTree.axiom, () => { this.#thick = this.thickness; });
+        super(BinaryTree.axiom, (transform: Transform) => {
+            this.#thick = this.thickness;
+            transform.dir = BinaryTree.direction;
+        });
         this.step = step;
         this._angle = angle;
         this.#thick = this.thickness = thickness;

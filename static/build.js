@@ -63,8 +63,8 @@ class L_System {
         }
         this.state = newState;
     }
-    EvolveTo(n) {
-        this.reset();
+    EvolveTo(n, transform) {
+        this.reset(transform);
         this.state = this.axiom;
         for (let i = 1; i < n; i++) {
             this.Evolve();
@@ -107,7 +107,10 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _BinaryTree_thick, _BinaryTree_anglePart;
 class BinaryTree extends L_System {
     constructor(step = 10, angle = 23, thickness = 16, random = true, splitChance = 23) {
-        super(BinaryTree.axiom, () => { __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness, "f"); });
+        super(BinaryTree.axiom, (transform) => {
+            __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness, "f");
+            transform.dir = BinaryTree.direction;
+        });
         this.dictionary = {
             '0': () => {
                 let s = `1[-20]+20`;
@@ -183,15 +186,47 @@ class BinaryTree extends L_System {
 _BinaryTree_thick = new WeakMap(), _BinaryTree_anglePart = new WeakMap();
 BinaryTree.axiom = '2220';
 BinaryTree.dif = 3;
+BinaryTree.direction = 90;
 BinaryTree.leafColors = [
     [0, 102, 0],
     [100, 200, 30],
     [50, 135, 10],
     [120, 120, 0]
 ];
+class KochCurve extends L_System {
+    constructor(step = 10, angle = 90) {
+        super(KochCurve.axiom, (transform) => {
+            transform.dir = KochCurve.direction;
+        });
+        this.dictionary = {
+            'F': () => {
+                return `F+F-F-F+F`;
+            }
+        };
+        this.step = step;
+        this.angle = angle;
+        this.states = new Array();
+        const simpleDraw = (cursor) => {
+            cursor.DrawLine(this.step, KochCurve.thickness);
+        };
+        let actions = {
+            'F': simpleDraw,
+            '+': (cursor) => {
+                cursor.loc.dir += this.angle;
+            },
+            '-': (cursor) => {
+                cursor.loc.dir -= this.angle;
+            }
+        };
+        this.actions = actions;
+    }
+}
+KochCurve.axiom = 'F';
+KochCurve.thickness = 3;
+KochCurve.direction = 0;
 const L_Systems_List = [
     BinaryTree,
-    L_System
+    KochCurve
 ];
 class UIControl {
     static InitRenderCheck() {
@@ -225,8 +260,10 @@ class UIControl {
             let system = L_Systems_List.find((x) => { return x.name == list.value; });
             console.log('system.name :>> ', system.name);
             lSystem = new system();
+            lSystem.reset(SpawnTransform);
             UIControl.CreateParametersPanel(lSystem);
             Update(true, true);
+            _Draw();
         };
         let editor = document.getElementById('Editor');
         document.body.insertBefore(list, editor);
@@ -290,11 +327,11 @@ function Update(UI = true, evolve = false, draw = false) {
         evolveCounter = (evolveCounter + 1) % evolveTrigger;
     }
     if ((evolveCounter == 0 || evolve) && !draw) {
-        lSystem.EvolveTo(generation);
+        lSystem.EvolveTo(generation, SpawnTransform);
         _Draw();
     }
     if (draw) {
-        lSystem.reset();
+        lSystem.reset(SpawnTransform);
         _Draw();
     }
     if (UI) {

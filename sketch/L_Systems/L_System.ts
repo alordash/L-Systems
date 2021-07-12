@@ -8,9 +8,10 @@ abstract class L_System {
     dictionary: DicType;
     axiom: string;
     state: string;
+    direction: number;
     actions: ActType;
-    reset: () => void;
-    constructor(axiom: string = '', reset: () => void = () => { }) {
+    reset: (transform: Transform) => void;
+    constructor(axiom: string = '', reset: (transform: Transform) => void = () => { }) {
         this.state = this.axiom = axiom;
         this.reset = reset;
     }
@@ -27,8 +28,8 @@ abstract class L_System {
         this.state = newState;
     }
 
-    EvolveTo(n: number) {
-        this.reset();
+    EvolveTo(n: number, transform: Transform) {
+        this.reset(transform);
         this.state = this.axiom;
         for (let i = 1; i < n; i++) {
             this.Evolve();
