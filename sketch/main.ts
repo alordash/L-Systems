@@ -29,17 +29,21 @@ function Update(UI = true, evolve = false, draw = false) {
         _Draw();
     }
     if (UI) {
-        button.innerHTML = `Button ${generation}`;
+        GenerationUp.innerHTML = `Up: ${generation}`;
         SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
     }
 }
 
-var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
 SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
-var button = document.getElementById("Button42");
-button.onclick = () => {
+var GenerationUp = document.getElementById("GenerationUp");
+GenerationUp.onclick = () => {
     generation++;
+    Update(undefined, true);
+}
+var GenerationDown = document.getElementById("GenerationDown");
+GenerationDown.onclick = () => {
+    generation--;
     Update(undefined, true);
 }
 

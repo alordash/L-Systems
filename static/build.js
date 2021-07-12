@@ -26,6 +26,7 @@ let height = 1200;
 let SpawnPoint = new Point(width / 2, height - 100);
 const pWidth = 10;
 let SpawnTransform = new Transform(SpawnPoint, 90);
+var generation = 0;
 class Cursor {
     constructor(p5, loc) {
         this.p5 = p5;
@@ -335,16 +336,20 @@ function Update(UI = true, evolve = false, draw = false) {
         _Draw();
     }
     if (UI) {
-        button.innerHTML = `Button ${generation}`;
+        GenerationUp.innerHTML = `Up: ${generation}`;
         SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
     }
 }
-var generation = 1;
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
 SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
-var button = document.getElementById("Button42");
-button.onclick = () => {
+var GenerationUp = document.getElementById("GenerationUp");
+GenerationUp.onclick = () => {
     generation++;
+    Update(undefined, true);
+};
+var GenerationDown = document.getElementById("GenerationDown");
+GenerationDown.onclick = () => {
+    generation--;
     Update(undefined, true);
 };
 let MainCursor;
