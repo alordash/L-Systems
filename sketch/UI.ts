@@ -1,4 +1,5 @@
 /// <reference path="constants.ts" />
+/// <reference path="L_Systems/L_Systems_List.ts" />
 
 abstract class UIControl {
     static paramsFiller = `<b>Parameters</b><br />`;
@@ -24,12 +25,30 @@ abstract class UIControl {
         }
     }
 
+    static CreateOptions() {
+        let list = document.createElement('select');
+        list.className = 'options';
+        for (let system of L_Systems_List) {
+            let option = document.createElement('option');
+            option.innerHTML = system.name;
+            list.appendChild(option);
+        }
+
+        list.onchange = () => {
+            let system = L_Systems_List.find((x) => { return x.name == list.value; });
+            console.log('system.name :>> ', system.name);
+        }
+
+        let editor = document.getElementById('Editor');
+        document.body.insertBefore(list, editor);
+    }
+
     static RangeFormat(key: string) {
         return `${key}range`;
     }
 
     static CreateNumberParameter(obj: L_System, key: string) {
-        if(key[0] == L_System.propertyMark) {
+        if (key[0] == L_System.propertyMark) {
             key = key.substring(1);
         }
         const params = document.getElementById('Params');

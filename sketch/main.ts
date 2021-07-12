@@ -12,6 +12,7 @@ UIControl.InitRenderCheck();
 let binaryTree = new BinaryTree();
 
 UIControl.CreateParametersPanel(binaryTree);
+UIControl.CreateOptions();
 
 let evolveCounter = 0;
 let evolveTrigger = 5;

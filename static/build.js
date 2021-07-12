@@ -26,76 +26,6 @@ let height = 1200;
 let SpawnPoint = new Point(width / 2, height - 100);
 const pWidth = 10;
 let SpawnTransform = new Transform(SpawnPoint, 90);
-class UIControl {
-    static InitRenderCheck() {
-        var continueRenderingCheckbox = document.getElementById("ContinueRendering");
-        continueRenderingCheckbox.checked = continueRendering;
-        continueRenderingCheckbox.onchange = function () {
-            continueRendering = continueRenderingCheckbox.checked;
-        };
-    }
-    static InitSpawnMoving(canvas) {
-        canvas.onmousemove = (e) => {
-            if (e.buttons) {
-                SpawnPoint = new Point(e.offsetX, e.offsetY);
-                SpawnTransform.pos = SpawnPoint;
-                Update(undefined, undefined, true);
-            }
-        };
-        canvas.onmousedown = () => {
-            Update(undefined, true);
-        };
-    }
-    static RangeFormat(key) {
-        return `${key}range`;
-    }
-    static CreateNumberParameter(obj, key) {
-        if (key[0] == L_System.propertyMark) {
-            key = key.substring(1);
-        }
-        const params = document.getElementById('Params');
-        params.appendChild(document.createElement('br'));
-        params.appendChild(document.createTextNode(key));
-        let range = document.createElement("input");
-        range.id = UIControl.RangeFormat(key);
-        range.type = 'range';
-        range.min = '0';
-        range.className = 'rangeParam';
-        range.max = '40';
-        range.step = 'any';
-        range.value = `${obj[key]}`;
-        range.onchange = () => {
-            console.log(`For ${key}`);
-            obj[key] = +range.value;
-            Update(undefined, true);
-        };
-        range.onmousemove = (e) => {
-            if (e.buttons) {
-                obj[key] = +range.value;
-                Update();
-            }
-        };
-        params.appendChild(range);
-    }
-    static CreateParametersPanel(system) {
-        console.log('system :>> ', system);
-        for (let [key, value] of Object.entries(system)) {
-            console.log('key, value, type :>> ', key, value, typeof value);
-            if (typeof value == 'number') {
-                UIControl.CreateNumberParameter(system, key);
-            }
-        }
-    }
-}
-UIControl.paramsFiller = `<b>Parameters</b><br />`;
-class MathHelper {
-    static randInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    static randomize(n) {
-        return n * this.randInt(0.7, 1.3);
-    }
-}
 class Cursor {
     constructor(p5, loc) {
         this.p5 = p5;
@@ -155,6 +85,14 @@ class State {
         this.thickness = thick;
     }
 }
+class MathHelper {
+    static randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    static randomize(n) {
+        return n * this.randInt(0.7, 1.3);
+    }
+}
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
     if (kind === "m") throw new TypeError("Private method is not writable");
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
@@ -168,7 +106,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _BinaryTree_thick, _BinaryTree_anglePart;
 class BinaryTree extends L_System {
-    constructor(step = 10, angle = 16, thickness = 16, random = true, splitChance = 23) {
+    constructor(step = 10, angle = 23, thickness = 16, random = true, splitChance = 23) {
         super(BinaryTree.axiom, () => { __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness, "f"); });
         this.dictionary = {
             '0': () => {
@@ -251,10 +189,92 @@ BinaryTree.leafColors = [
     [50, 135, 10],
     [120, 120, 0]
 ];
+const L_Systems_List = [
+    BinaryTree,
+    L_System
+];
+class UIControl {
+    static InitRenderCheck() {
+        var continueRenderingCheckbox = document.getElementById("ContinueRendering");
+        continueRenderingCheckbox.checked = continueRendering;
+        continueRenderingCheckbox.onchange = function () {
+            continueRendering = continueRenderingCheckbox.checked;
+        };
+    }
+    static InitSpawnMoving(canvas) {
+        canvas.onmousemove = (e) => {
+            if (e.buttons) {
+                SpawnPoint = new Point(e.offsetX, e.offsetY);
+                SpawnTransform.pos = SpawnPoint;
+                Update(undefined, undefined, true);
+            }
+        };
+        canvas.onmousedown = () => {
+            Update(undefined, true);
+        };
+    }
+    static CreateOptions() {
+        let list = document.createElement('select');
+        list.className = 'options';
+        for (let system of L_Systems_List) {
+            let option = document.createElement('option');
+            option.innerHTML = system.name;
+            list.appendChild(option);
+        }
+        list.onchange = () => {
+            let system = L_Systems_List.find((x) => { return x.name == list.value; });
+            console.log('system.name :>> ', system.name);
+        };
+        let editor = document.getElementById('Editor');
+        document.body.insertBefore(list, editor);
+    }
+    static RangeFormat(key) {
+        return `${key}range`;
+    }
+    static CreateNumberParameter(obj, key) {
+        if (key[0] == L_System.propertyMark) {
+            key = key.substring(1);
+        }
+        const params = document.getElementById('Params');
+        params.appendChild(document.createElement('br'));
+        params.appendChild(document.createTextNode(key));
+        let range = document.createElement("input");
+        range.id = UIControl.RangeFormat(key);
+        range.type = 'range';
+        range.min = '0';
+        range.className = 'rangeParam';
+        range.max = '40';
+        range.step = 'any';
+        range.value = `${obj[key]}`;
+        range.onchange = () => {
+            console.log(`For ${key}`);
+            obj[key] = +range.value;
+            Update(undefined, true);
+        };
+        range.onmousemove = (e) => {
+            if (e.buttons) {
+                obj[key] = +range.value;
+                Update();
+            }
+        };
+        params.appendChild(range);
+    }
+    static CreateParametersPanel(system) {
+        console.log('system :>> ', system);
+        for (let [key, value] of Object.entries(system)) {
+            console.log('key, value, type :>> ', key, value, typeof value);
+            if (typeof value == 'number') {
+                UIControl.CreateNumberParameter(system, key);
+            }
+        }
+    }
+}
+UIControl.paramsFiller = `<b>Parameters</b><br />`;
 var continueRendering = false;
 UIControl.InitRenderCheck();
 let binaryTree = new BinaryTree();
 UIControl.CreateParametersPanel(binaryTree);
+UIControl.CreateOptions();
 let evolveCounter = 0;
 let evolveTrigger = 5;
 function Update(UI = true, evolve = false, draw = false) {
