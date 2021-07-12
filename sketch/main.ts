@@ -17,7 +17,9 @@ let binaryTree = new BinaryTree(+stepRange.value, +angleRange.value, 16, true, 3
 let evolveCounter = 0;
 const evolveTrigger = 10;
 function Update(UI = true, evolve = false) {
-    evolveCounter = (evolveCounter + 1) % evolveTrigger;
+    if (!evolve) {
+        evolveCounter = (evolveCounter + 1) % evolveTrigger;
+    }
     if (evolveCounter == 0 || evolve) {
         binaryTree.EvolveTo(generation);
         binaryTree.step = +stepRange.value;
