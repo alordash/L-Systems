@@ -245,7 +245,9 @@ var evolveTrigger = 10;
 function Update(UI, evolve) {
     if (UI === void 0) { UI = true; }
     if (evolve === void 0) { evolve = false; }
-    evolveCounter = (evolveCounter + 1) % evolveTrigger;
+    if (!evolve) {
+        evolveCounter = (evolveCounter + 1) % evolveTrigger;
+    }
     if (evolveCounter == 0 || evolve) {
         binaryTree.EvolveTo(generation);
         binaryTree.step = +stepRange.value;
