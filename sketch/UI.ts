@@ -1,6 +1,10 @@
 /// <reference path="constants.ts" />
 /// <reference path="L_Systems/L_Systems_List.ts" />
 
+let playTimer: NodeJS.Timer;
+let playing = false;
+let playStep = 50;
+
 abstract class UIControl {
     static paramsFiller = `<b>Parameters</b><br />`;
 
@@ -48,7 +52,7 @@ abstract class UIControl {
     }
 
     static CreateNumberParameter(obj: L_System, key: string) {
-        if(key[0] == L_System.ignoreMark) {
+        if (key[0] == L_System.ignoreMark) {
             return;
         }
         let isProperty = key[0] == L_System.propertyMark;
@@ -115,10 +119,11 @@ abstract class UIControl {
 
     static InitTimeRange(lSystem: L_System) {
         let timeCheckbox = <HTMLInputElement>document.getElementById('TimeCheckbox');
+        let energyDiv = document.getElementById('energydiv');
         let energyRange = <HTMLInputElement>document.getElementById('energyrange');
         UIControl.UpdateEnergyRange(energyRange);
         timeCheckbox.onchange = () => {
-            energyRange.style.visibility = timeCheckbox.checked ? '' : 'hidden';
+            energyDiv.style.visibility = timeCheckbox.checked ? '' : 'hidden';
             lSystem.$energy = timeCheckbox.checked ? lSystem.$energy : 0;
         }
         energyRange.onchange = () => {
@@ -129,6 +134,31 @@ abstract class UIControl {
             if (e.buttons) {
                 lSystem.$energy = +energyRange.value;
                 Update();
+            }
+        }
+        
+        let playButton = <HTMLInputElement>document.getElementById('PlayButton');
+        playButton.onclick = () => {
+            playing = !playing;
+            if(playing) {
+                playButton.style.backgroundColor = "#d0451b";
+                playButton.textContent = "Stop";
+                energyRange.step = (playStep = +energyRange.max / 1000).toString();
+                playTimer = setInterval(() => {
+                    let maxVal = +energyRange.max;
+                    let v = +energyRange.value + playStep;
+                    if (v > maxVal || v < 0) {
+                        v -= 2 * playStep;
+                        playStep *= -1;
+                    }
+                    energyRange.value = v.toString();
+                    lSystem.$energy = v;
+                    Update();
+                }, 10);
+            } else {
+                playButton.style.backgroundColor = "#32d01b";
+                playButton.textContent = "Play";
+                clearInterval(playTimer);
             }
         }
     }

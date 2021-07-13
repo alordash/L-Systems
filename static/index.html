@@ -32,6 +32,24 @@
     .button {
       font-size: 20px;
     }
+
+    .playButton {
+      border-radius: 3px;
+      border: 1px solid #942911;
+      display: inline-block;
+      cursor: pointer;
+      color: #ffffff;
+      font-family: Arial;
+      font-size: 13px;
+      padding: 2px 24px;
+      text-decoration: none;
+      text-shadow: 0px 1px 0px #854629;
+    }
+
+    .playButton:active {
+      position: relative;
+      top: 1px;
+    }
   </style>
 </head>
 
@@ -40,8 +58,12 @@
   <button id="Randomize" class="button">Randomize</button>
   <input type="checkbox" id="TimeCheckbox" style="left: 5px;position: relative;">
   Time:
-  <input id="energyrange" type="range" class="rangeParam" min="-1" max="200000" step="1000"
-    style="position: initial; visibility: hidden;">
+  <div id="energydiv" style="position: absolute; top: 11px; left: 350px; visibility: hidden;">
+    <input id="energyrange" type="range" class="rangeParam" min="0" max="200000" step="1000"
+      style="position: initial;">
+    <a href="#" id="PlayButton" class="playButton"
+      style="background-color: rgb(50, 208, 27); display: inline-block;">Play</a>
+  </div>
   <div id="SystemStateDisplay" class="info" style="width: 100%;">State: </div>
   <div id="Editor" style="display: flex; flex-direction: row;">
     <div id="Params" class="info" style="width: 275px; padding: 5px;">
