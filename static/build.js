@@ -63,13 +63,16 @@ class Section {
     Copy() {
         return new Section(this.c, this.evolveLimit, this.stage);
     }
-    static Decode(s, sections) {
+    static Decode(s, sections, stage = 0) {
         let ss = new Array();
         for (let c of s) {
             let section = sections[c];
             if (section != undefined) {
                 ss.push(section.Copy());
             }
+        }
+        if (ss.length) {
+            ss[0].stage = stage;
         }
         return ss;
     }
@@ -92,21 +95,24 @@ class NumberParam {
     }
 }
 class L_System {
-    constructor(axiom = Array(), reset = () => { }, stage = new NumberParam(-1, -1, 200000)) {
+    constructor(axiom = Array(), reset = () => { }, stage = -1) {
         this.state = this.axiom = axiom;
-        this.energy = stage;
+        this.$energy = stage;
         this.reset = reset;
         this.Randomize();
     }
     Grow(s) {
-        if (this.energy.v > 0 && s.stage < s.evolveLimit) {
-            let available = Math.min(this.energy.v, s.evolveLimit - s.stage);
-            this.energy.v -= available;
+        if (this.$energy > 0 && s.stage < s.evolveLimit) {
+            let available = Math.min(this.$energy, s.evolveLimit - s.stage);
+            this.$energy -= available;
             s.stage += available;
+        }
+        else if (this.$energy < 0) {
+            s.stage = s.evolveLimit;
         }
     }
     StopGrow(s) {
-        return this.energy.v >= 0 && s.stage < s.evolveLimit;
+        return this.$energy >= 0 && s.stage < s.evolveLimit;
     }
     Randomize() {
         this.seed = Math.random().toString();
@@ -125,10 +131,10 @@ class L_System {
         }
         this.state = newState;
     }
-    EvolveTo(n, transform) {
+    EvolveTo(generation, transform) {
         this.reset(transform);
         this.state = this.axiom;
-        for (let i = 1; i < n; i++) {
+        for (let i = 1; i < generation; i++) {
             this.Evolve();
         }
     }
@@ -147,10 +153,20 @@ class L_System {
         }
         return s;
     }
+    CountMaxEnergy(generation, transform) {
+        this.$energy = -1;
+        this.EvolveTo(generation, transform);
+        let n = 0;
+        for (let section of this.state) {
+            n += section.stage;
+        }
+        return n;
+    }
 }
 L_System.propertyMark = '_';
 L_System.minMark = '_min';
 L_System.maxMark = '_max';
+L_System.ignoreMark = '$';
 class MathHelper {
     static map(value, min, max) {
         return Math.floor(value * (max - min + 1)) + min;
@@ -215,12 +231,12 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                let ss = Section.Decode('1[-20]+20', BinaryTree.Sections);
+                let ss = Section.Decode('1[-20]+20', BinaryTree.Sections, s.stage);
                 if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
-                    ss = Section.Decode('1[10]10', BinaryTree.Sections);
+                    ss = Section.Decode('1[10]10', BinaryTree.Sections, s.stage);
                 }
                 else if (!this.random) {
-                    ss = Section.Decode('1[20]20', BinaryTree.Sections);
+                    ss = Section.Decode('1[20]20', BinaryTree.Sections, s.stage);
                 }
                 return ss;
             },
@@ -229,7 +245,7 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                return Section.Decode('21', BinaryTree.Sections);
+                return Section.Decode('21', BinaryTree.Sections, s.stage);
             },
             '2': (s) => {
                 this.Grow(s);
@@ -351,6 +367,9 @@ class UIControl {
         return `${key}range`;
     }
     static CreateNumberParameter(obj, key) {
+        if (key[0] == L_System.ignoreMark) {
+            return;
+        }
         let isProperty = key[0] == L_System.propertyMark;
         if (isProperty) {
             key = key.substring(1);
@@ -397,18 +416,41 @@ class UIControl {
             range.remove();
         }
         document.getElementById('Params').innerHTML = `<b>Parameters</b>`;
-        console.log('system :>> ', system);
         for (let [key, value] of Object.entries(system)) {
-            console.log('key, value, type :>> ', key, value, typeof value);
             if (value instanceof NumberParam) {
                 UIControl.CreateNumberParameter(system, key);
             }
         }
     }
+    static UpdateEnergyRange(energyRange) {
+        let energy = lSystem.CountMaxEnergy(generation, SpawnTransform);
+        energyRange.max = energy.toString();
+        energyRange.step = (energy / 100).toString();
+    }
+    static InitTimeRange(lSystem) {
+        let timeCheckbox = document.getElementById('TimeCheckbox');
+        let energyRange = document.getElementById('energyrange');
+        UIControl.UpdateEnergyRange(energyRange);
+        timeCheckbox.onchange = () => {
+            energyRange.style.visibility = timeCheckbox.checked ? '' : 'hidden';
+            lSystem.$energy = timeCheckbox.checked ? lSystem.$energy : 0;
+        };
+        energyRange.onchange = () => {
+            lSystem.$energy = +energyRange.value;
+            Update(undefined, true);
+        };
+        energyRange.onmousemove = (e) => {
+            if (e.buttons) {
+                lSystem.$energy = +energyRange.value;
+                Update();
+            }
+        };
+    }
     static Init(lSystem) {
         UIControl.InitRandomizeButton();
         UIControl.CreateParametersPanel(lSystem);
         UIControl.CreateOptions();
+        UIControl.InitTimeRange(lSystem);
     }
 }
 UIControl.paramsFiller = `<b>Parameters</b><br />`;
@@ -416,7 +458,7 @@ let lSystem = new BinaryTree();
 UIControl.Init(lSystem);
 let evolveCounter = 0;
 let evolveTrigger = 5;
-function Update(UI = true, evolve = false, draw = false, randomize = false) {
+function Update(UI = true, evolve = false, draw = false, randomize = false, countEnergy = false) {
     if (randomize) {
         lSystem.Randomize();
     }
@@ -434,18 +476,21 @@ function Update(UI = true, evolve = false, draw = false, randomize = false) {
         GenerationUp.innerHTML = `Up: ${generation}`;
         SystemStateDisplay.innerHTML = `State: ${lSystem.FormatState()}`;
     }
+    if (countEnergy) {
+        UIControl.UpdateEnergyRange(document.getElementById('energyrange'));
+    }
 }
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
 SystemStateDisplay.innerHTML = `State: ${lSystem.FormatState()}`;
 var GenerationUp = document.getElementById("GenerationUp");
 GenerationUp.onclick = () => {
     generation++;
-    Update(undefined, true);
+    Update(undefined, true, undefined, undefined, true);
 };
 var GenerationDown = document.getElementById("GenerationDown");
 GenerationDown.onclick = () => {
     generation--;
-    Update(undefined, true);
+    Update(undefined, true, undefined, undefined, true);
 };
 let MainCursor;
 function _Draw() {

@@ -48,6 +48,9 @@ abstract class UIControl {
     }
 
     static CreateNumberParameter(obj: L_System, key: string) {
+        if(key[0] == L_System.ignoreMark) {
+            return;
+        }
         let isProperty = key[0] == L_System.propertyMark;
         if (isProperty) {
             key = key.substring(1);
@@ -97,11 +100,35 @@ abstract class UIControl {
             range.remove();
         }
         document.getElementById('Params').innerHTML = `<b>Parameters</b>`;
-        console.log('system :>> ', system);
         for (let [key, value] of Object.entries(system)) {
-            console.log('key, value, type :>> ', key, value, typeof value);
             if (value instanceof NumberParam) {
                 UIControl.CreateNumberParameter(system, key);
+            }
+        }
+    }
+
+    static UpdateEnergyRange(energyRange: HTMLInputElement) {
+        let energy = lSystem.CountMaxEnergy(generation, SpawnTransform);
+        energyRange.max = energy.toString();
+        energyRange.step = (energy / 100).toString();
+    }
+
+    static InitTimeRange(lSystem: L_System) {
+        let timeCheckbox = <HTMLInputElement>document.getElementById('TimeCheckbox');
+        let energyRange = <HTMLInputElement>document.getElementById('energyrange');
+        UIControl.UpdateEnergyRange(energyRange);
+        timeCheckbox.onchange = () => {
+            energyRange.style.visibility = timeCheckbox.checked ? '' : 'hidden';
+            lSystem.$energy = timeCheckbox.checked ? lSystem.$energy : 0;
+        }
+        energyRange.onchange = () => {
+            lSystem.$energy = +energyRange.value;
+            Update(undefined, true);
+        }
+        energyRange.onmousemove = (e) => {
+            if (e.buttons) {
+                lSystem.$energy = +energyRange.value;
+                Update();
             }
         }
     }
@@ -110,5 +137,6 @@ abstract class UIControl {
         UIControl.InitRandomizeButton();
         UIControl.CreateParametersPanel(lSystem);
         UIControl.CreateOptions();
+        UIControl.InitTimeRange(lSystem);
     }
 }

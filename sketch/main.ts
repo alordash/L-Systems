@@ -12,8 +12,8 @@ UIControl.Init(lSystem);
 
 let evolveCounter = 0;
 let evolveTrigger = 5;
-function Update(UI = true, evolve = false, draw = false, randomize = false) {
-    if(randomize) {
+function Update(UI = true, evolve = false, draw = false, randomize = false, countEnergy = false) {
+    if (randomize) {
         lSystem.Randomize();
     }
     if (!evolve) {
@@ -30,6 +30,9 @@ function Update(UI = true, evolve = false, draw = false, randomize = false) {
         GenerationUp.innerHTML = `Up: ${generation}`;
         SystemStateDisplay.innerHTML = `State: ${lSystem.FormatState()}`;
     }
+    if (countEnergy) {
+        UIControl.UpdateEnergyRange(<HTMLInputElement>document.getElementById('energyrange'));
+    }
 }
 
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
@@ -37,12 +40,12 @@ SystemStateDisplay.innerHTML = `State: ${lSystem.FormatState()}`;
 var GenerationUp = document.getElementById("GenerationUp");
 GenerationUp.onclick = () => {
     generation++;
-    Update(undefined, true);
+    Update(undefined, true, undefined, undefined, true);
 }
 var GenerationDown = document.getElementById("GenerationDown");
 GenerationDown.onclick = () => {
     generation--;
-    Update(undefined, true);
+    Update(undefined, true, undefined, undefined, true);
 }
 
 let MainCursor: Cursor;

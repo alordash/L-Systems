@@ -17,11 +17,11 @@ class BinaryTree extends L_System {
             if (this.StopGrow(s)) {
                 return [s];
             }
-            let ss = Section.Decode('1[-20]+20', BinaryTree.Sections);
+            let ss = Section.Decode('1[-20]+20', BinaryTree.Sections, s.stage);
             if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
-                ss = Section.Decode('1[10]10', BinaryTree.Sections);
+                ss = Section.Decode('1[10]10', BinaryTree.Sections, s.stage);
             } else if (!this.random) {
-                ss = Section.Decode('1[20]20', BinaryTree.Sections);
+                ss = Section.Decode('1[20]20', BinaryTree.Sections, s.stage);
             }
             return ss;
         },
@@ -30,7 +30,7 @@ class BinaryTree extends L_System {
             if (this.StopGrow(s)) {
                 return [s];
             }
-            return Section.Decode('21', BinaryTree.Sections);
+            return Section.Decode('21', BinaryTree.Sections, s.stage);
         },
         '2': (s) => {
             this.Grow(s);

@@ -24,13 +24,16 @@ class Section {
         return new Section(this.c, this.evolveLimit, this.stage);
     }
 
-    static Decode(s: string, sections: Record<string, Section>) {
+    static Decode(s: string, sections: Record<string, Section>, stage = 0) {
         let ss = new Array<Section>();
         for (let c of s) {
             let section = sections[c];
             if (section != undefined) {
                 ss.push(section.Copy());
             }
+        }
+        if(ss.length) {
+            ss[0].stage = stage;
         }
         return ss;
     }
@@ -66,33 +69,36 @@ abstract class L_System {
     static propertyMark = '_';
     static minMark = '_min';
     static maxMark = '_max';
+    static ignoreMark = '$';
 
     dictionary: DicType;
     axiom: Array<Section>;
     state: Array<Section>;
-    energy: NumberParam;
+    $energy: number;
     direction: number;
     actions: ActType;
     seed: string;
     rand: () => number;
     reset: (transform: Transform) => void;
-    constructor(axiom = Array<Section>(), reset: (transform: Transform) => void = () => { }, stage = new NumberParam(-1, -1, 200000)) {
+    constructor(axiom = Array<Section>(), reset: (transform: Transform) => void = () => { }, stage = -1) {
         this.state = this.axiom = axiom;
-        this.energy = stage;
+        this.$energy = stage;
         this.reset = reset;
         this.Randomize();
     }
 
     Grow(s: Section) {
-        if (this.energy.v > 0 && s.stage < s.evolveLimit) {
-            let available = Math.min(this.energy.v, s.evolveLimit - s.stage);
-            this.energy.v -= available;
+        if (this.$energy > 0 && s.stage < s.evolveLimit) {
+            let available = Math.min(this.$energy, s.evolveLimit - s.stage);
+            this.$energy -= available;
             s.stage += available;
+        } else if(this.$energy < 0) {
+            s.stage = s.evolveLimit;
         }
     }
 
     StopGrow(s: Section) {
-        return this.energy.v >= 0 && s.stage < s.evolveLimit;
+        return this.$energy >= 0 && s.stage < s.evolveLimit;
     }
 
     Randomize() {
@@ -113,10 +119,10 @@ abstract class L_System {
         this.state = newState;
     }
 
-    EvolveTo(n: number, transform: Transform) {
+    EvolveTo(generation: number, transform: Transform) {
         this.reset(transform);
         this.state = this.axiom;
-        for (let i = 1; i < n; i++) {
+        for (let i = 1; i < generation; i++) {
             this.Evolve();
         }
     }
@@ -136,5 +142,15 @@ abstract class L_System {
             s += section.c;
         }
         return s;
+    }
+
+    CountMaxEnergy(generation: number, transform: Transform) {
+        this.$energy = -1;
+        this.EvolveTo(generation, transform);
+        let n = 0;
+        for(let section of this.state) {
+            n += section.stage;
+        }
+        return n;
     }
 }
