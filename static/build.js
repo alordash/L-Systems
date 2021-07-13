@@ -274,31 +274,31 @@ class BinaryTree extends L_System {
         this.state = this.axiom = Section.Decode(BinaryTree.axiom, this.Sections);
         const simpleDraw = (cursor, s) => {
             if (!this.random || s.values[0] > 2) {
-                cursor.DrawLine(s.values[1] * s.progress(), __classPrivateFieldGet(this, _BinaryTree_thick, "f"));
+                cursor.DrawLine(this.CalcStep(s.values[1]) * s.progress(), __classPrivateFieldGet(this, _BinaryTree_thick, "f"));
             }
         };
         let actions = {
             '0': (cursor, s) => {
-                cursor.DrawLine(s.values[0], Math.max(7.5, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 1.2), cursor.p5.color(BinaryTree.leafColors[s.values[1]]));
+                cursor.DrawLine(this.CalcStep(s.values[0]), Math.max(7.5, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randIntSeeded(0, BinaryTree.leafColors.length - 1, this.rand)]));
             },
             '1': simpleDraw,
             '2': simpleDraw,
             '[': (cursor, s) => {
                 __classPrivateFieldSet(this, _BinaryTree_thick, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 0.75, "f");
                 this.states.push(new State(cursor.loc.Copy(), __classPrivateFieldGet(this, _BinaryTree_thick, "f")));
-                cursor.loc.dir += s.values[0];
+                cursor.loc.dir += this.CalcAngle(s.values[0]);
             },
             ']': (cursor, s) => {
                 let state = this.states.pop();
                 __classPrivateFieldSet(this, _BinaryTree_thick, state.thickness, "f");
                 cursor.loc.SetTo(state.t);
-                cursor.loc.dir -= s.values[0];
+                cursor.loc.dir -= this.CalcAngle(s.values[0]);
             },
             '+': (cursor, s) => {
-                cursor.loc.dir += s.values[0];
+                cursor.loc.dir += this.CalcAngle(s.values[0]);
             },
             '-': (cursor, s) => {
-                cursor.loc.dir -= s.values[0];
+                cursor.loc.dir -= this.CalcAngle(s.values[0]);
             }
         };
         this.actions = actions;
@@ -306,28 +306,27 @@ class BinaryTree extends L_System {
     InitSections() {
         this.Sections = {
             '0': new Section('0', (s) => {
-                s.values.push(this.CalcStep() * 0.75);
-                s.values.push(MathHelper.randIntSeeded(0, BinaryTree.leafColors.length - 1, this.rand));
+                s.values.push(this.RandStep() * 0.75);
             }),
             '1': new Section('1', (s) => {
                 s.values.push(MathHelper.randIntSeeded(0, 10, this.rand));
-                s.values.push(this.CalcStep());
+                s.values.push(this.RandStep());
             }),
             '2': new Section('2', (s) => {
                 s.values.push(MathHelper.randIntSeeded(0, 10, this.rand));
-                s.values.push(this.CalcStep());
+                s.values.push(this.RandStep());
             }),
             '+': new Section('+', (s) => {
-                s.values.push(this.CalcAngle());
+                s.values.push(this.RandAngle());
             }),
             '-': new Section('-', (s) => {
-                s.values.push(this.CalcAngle());
+                s.values.push(this.RandAngle());
             }),
             '[': new Section('[', (s) => {
-                s.values.push(this.CalcAngle());
+                s.values.push(this.RandAngle());
             }),
             ']': new Section(']', (s) => {
-                s.values.push(this.CalcAngle());
+                s.values.push(this.RandAngle());
             })
         };
     }
@@ -338,11 +337,17 @@ class BinaryTree extends L_System {
     get angle() {
         return this._angle.v;
     }
-    CalcStep() {
-        return this.random ? MathHelper.randomizeSeeded(this.step.v, undefined, this.rand) : this.step.v;
+    RandStep() {
+        return this.random ? MathHelper.randomizeSeeded(1, 0.3, this.rand) : 1;
     }
-    CalcAngle() {
-        return this._angle.v + (this.random ? MathHelper.randIntSeeded(0, __classPrivateFieldGet(this, _BinaryTree_anglePart, "f"), this.rand) : 0);
+    RandAngle() {
+        return this.random ? MathHelper.randIntSeeded(0, 1, this.rand) : 0;
+    }
+    CalcStep(v) {
+        return v * this.step.v;
+    }
+    CalcAngle(v) {
+        return this._angle.v + v * __classPrivateFieldGet(this, _BinaryTree_anglePart, "f");
     }
 }
 _BinaryTree_thick = new WeakMap(), _BinaryTree_anglePart = new WeakMap();
@@ -485,7 +490,7 @@ class UIControl {
             if (playing) {
                 playButton.style.backgroundColor = "#d0451b";
                 playButton.textContent = "Stop";
-                energyRange.step = (playStep = +energyRange.max / 10000).toString();
+                energyRange.step = (playStep = +energyRange.max / 1000).toString();
                 playTimer = setInterval(() => {
                     let maxVal = +energyRange.max;
                     let v = +energyRange.value + playStep;
@@ -496,7 +501,7 @@ class UIControl {
                     energyRange.value = v.toString();
                     lSystem.$energy = v;
                     Update();
-                }, 10);
+                }, 100);
             }
             else {
                 playButton.style.backgroundColor = "#32d01b";
