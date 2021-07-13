@@ -54,14 +54,21 @@ class State {
     }
 }
 class Section {
-    constructor(c, evolveLimit = 100, stage = 0) {
+    constructor(c, init = () => { }, evolveLimit = 100, stage = 0, values = undefined) {
         this.stage = 0;
         this.c = c;
         this.evolveLimit = evolveLimit;
         this.stage = stage;
+        if (values != undefined) {
+            this.values = values;
+        }
+        else {
+            this.values = new Array();
+            init(this);
+        }
     }
     Copy() {
-        return new Section(this.c, this.evolveLimit, this.stage);
+        return new Section(this.c, undefined, this.evolveLimit, this.stage, this.values);
     }
     static Decode(s, sections, stage = 0) {
         let ss = new Array();
@@ -98,8 +105,7 @@ class NumberParam {
     }
 }
 class L_System {
-    constructor(axiom = Array(), reset = () => { }, stage = -1) {
-        this.state = this.axiom = axiom;
+    constructor(reset = () => { }, stage = -1) {
         this.$energy = stage;
         this.reset = reset;
         this.Randomize();
@@ -222,7 +228,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _BinaryTree_thick, _BinaryTree_anglePart;
 class BinaryTree extends L_System {
     constructor(step = new NumberParam(10, 0, 50), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random = true, splitChance = new NumberParam(23, 0, 100)) {
-        super(Section.Decode(BinaryTree.axiom, BinaryTree.Sections), (transform) => {
+        super((transform) => {
             __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness.v, "f");
             transform.dir = BinaryTree.direction;
             this.rand = MathHelper.intSeededGenerator(this.seed);
@@ -234,12 +240,12 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                let ss = Section.Decode('1[-20]+20', BinaryTree.Sections, s.stage);
+                let ss = Section.Decode('1[-20]+20', this.Sections, s.stage);
                 if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
-                    ss = Section.Decode('1[10]10', BinaryTree.Sections, s.stage);
+                    ss = Section.Decode('1[10]10', this.Sections, s.stage);
                 }
                 else if (!this.random) {
-                    ss = Section.Decode('1[20]20', BinaryTree.Sections, s.stage);
+                    ss = Section.Decode('1[20]20', this.Sections, s.stage);
                 }
                 return ss;
             },
@@ -248,7 +254,7 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                return Section.Decode('21', BinaryTree.Sections, s.stage);
+                return Section.Decode('21', this.Sections, s.stage);
             },
             '2': (s) => {
                 this.Grow(s);
@@ -264,36 +270,66 @@ class BinaryTree extends L_System {
         this.random = random;
         this.splitChance = splitChance;
         this.states = new Array();
+        this.InitSections();
+        this.state = this.axiom = Section.Decode(BinaryTree.axiom, this.Sections);
         const simpleDraw = (cursor, s) => {
-            if (!this.random || MathHelper.randIntSeeded(0, 10, this.rand) > 2) {
-                cursor.DrawLine(this.CalcStep() * s.progress(), __classPrivateFieldGet(this, _BinaryTree_thick, "f"));
+            if (!this.random || s.values[0] > 2) {
+                cursor.DrawLine(s.values[1] * s.progress(), __classPrivateFieldGet(this, _BinaryTree_thick, "f"));
             }
         };
         let actions = {
             '0': (cursor, s) => {
-                cursor.DrawLine(this.CalcStep() * 0.75, Math.max(7.5, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randIntSeeded(0, BinaryTree.leafColors.length - 1, this.rand)]));
+                cursor.DrawLine(s.values[0], Math.max(7.5, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 1.2), cursor.p5.color(BinaryTree.leafColors[s.values[1]]));
             },
             '1': simpleDraw,
             '2': simpleDraw,
-            '[': (cursor) => {
+            '[': (cursor, s) => {
                 __classPrivateFieldSet(this, _BinaryTree_thick, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 0.75, "f");
                 this.states.push(new State(cursor.loc.Copy(), __classPrivateFieldGet(this, _BinaryTree_thick, "f")));
-                cursor.loc.dir += this.CalcAngle();
+                cursor.loc.dir += s.values[0];
             },
-            ']': (cursor) => {
+            ']': (cursor, s) => {
                 let state = this.states.pop();
                 __classPrivateFieldSet(this, _BinaryTree_thick, state.thickness, "f");
                 cursor.loc.SetTo(state.t);
-                cursor.loc.dir -= this.CalcAngle();
+                cursor.loc.dir -= s.values[0];
             },
-            '+': (cursor) => {
-                cursor.loc.dir += this.CalcAngle();
+            '+': (cursor, s) => {
+                cursor.loc.dir += s.values[0];
             },
-            '-': (cursor) => {
-                cursor.loc.dir -= this.CalcAngle();
+            '-': (cursor, s) => {
+                cursor.loc.dir -= s.values[0];
             }
         };
         this.actions = actions;
+    }
+    InitSections() {
+        this.Sections = {
+            '0': new Section('0', (s) => {
+                s.values.push(this.CalcStep() * 0.75);
+                s.values.push(MathHelper.randIntSeeded(0, BinaryTree.leafColors.length - 1, this.rand));
+            }),
+            '1': new Section('1', (s) => {
+                s.values.push(MathHelper.randIntSeeded(0, 10, this.rand));
+                s.values.push(this.CalcStep());
+            }),
+            '2': new Section('2', (s) => {
+                s.values.push(MathHelper.randIntSeeded(0, 10, this.rand));
+                s.values.push(this.CalcStep());
+            }),
+            '+': new Section('+', (s) => {
+                s.values.push(this.CalcAngle());
+            }),
+            '-': new Section('-', (s) => {
+                s.values.push(this.CalcAngle());
+            }),
+            '[': new Section('[', (s) => {
+                s.values.push(this.CalcAngle());
+            }),
+            ']': new Section(']', (s) => {
+                s.values.push(this.CalcAngle());
+            })
+        };
     }
     set angle(v) {
         this._angle.v = v;
@@ -310,15 +346,6 @@ class BinaryTree extends L_System {
     }
 }
 _BinaryTree_thick = new WeakMap(), _BinaryTree_anglePart = new WeakMap();
-BinaryTree.Sections = {
-    '0': new Section('0'),
-    '1': new Section('1'),
-    '2': new Section('2'),
-    '+': new Section('+', -1),
-    '-': new Section('-', -1),
-    '[': new Section('[', -1),
-    ']': new Section(']', -1)
-};
 BinaryTree.axiom = '2220';
 BinaryTree.dif = 3;
 BinaryTree.direction = 90;

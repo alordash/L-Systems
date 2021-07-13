@@ -13,15 +13,22 @@ class Section {
     c: string;
     evolveLimit: number;
     stage = 0;
+    values: Array<number>;
 
-    constructor(c: string, evolveLimit = 100, stage = 0) {
+    constructor(c: string, init: (s: Section) => void = () => { }, evolveLimit = 100, stage = 0, values: Array<number> = undefined) {
         this.c = c;
         this.evolveLimit = evolveLimit;
         this.stage = stage;
+        if (values != undefined) {
+            this.values = values;
+        } else {
+            this.values = new Array<number>();
+            init(this);
+        }
     }
 
     Copy() {
-        return new Section(this.c, this.evolveLimit, this.stage);
+        return new Section(this.c, undefined, this.evolveLimit, this.stage, this.values);
     }
 
     static Decode(s: string, sections: Record<string, Section>, stage = 0) {
@@ -32,7 +39,7 @@ class Section {
                 ss.push(section.Copy());
             }
         }
-        if(ss.length) {
+        if (ss.length) {
             ss[0].stage = stage;
         }
         return ss;
@@ -84,8 +91,7 @@ abstract class L_System {
     seed: string;
     rand: () => number;
     reset: (transform: Transform) => void;
-    constructor(axiom = Array<Section>(), reset: (transform: Transform) => void = () => { }, stage = -1) {
-        this.state = this.axiom = axiom;
+    constructor(reset: (transform: Transform) => void = () => { }, stage = -1) {
         this.$energy = stage;
         this.reset = reset;
         this.Randomize();
@@ -96,7 +102,7 @@ abstract class L_System {
             let available = Math.min(this.$energy, s.evolveLimit - s.stage);
             this.$energy -= available;
             s.stage += available;
-        } else if(this.$energy < 0) {
+        } else if (this.$energy < 0) {
             s.stage = s.evolveLimit;
         }
     }
@@ -152,7 +158,7 @@ abstract class L_System {
         this.$energy = -1;
         this.EvolveTo(generation, transform);
         let n = 0;
-        for(let section of this.state) {
+        for (let section of this.state) {
             n += section.stage;
         }
         return n;
