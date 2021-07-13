@@ -154,7 +154,7 @@ abstract class UIControl {
                     energyRange.value = v.toString();
                     lSystem.$energy = v;
                     Update();
-                }, 100);
+                }, 10);
             } else {
                 playButton.style.backgroundColor = "#32d01b";
                 playButton.textContent = "Play";

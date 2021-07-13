@@ -59,23 +59,26 @@ class Section {
         this.c = c;
         this.evolveLimit = evolveLimit;
         this.stage = stage;
+        this.init = init;
         if (values != undefined) {
             this.values = values;
         }
         else {
             this.values = new Array();
-            init(this);
+            this.init(this);
         }
     }
     Copy() {
-        return new Section(this.c, undefined, this.evolveLimit, this.stage, this.values);
+        return new Section(this.c, this.init, this.evolveLimit, this.stage);
     }
     static Decode(s, sections, stage = 0) {
         let ss = new Array();
         for (let c of s) {
             let section = sections[c];
             if (section != undefined) {
-                ss.push(section.Copy());
+                let newSection = section.Copy();
+                newSection.init(newSection);
+                ss.push(newSection);
             }
         }
         if (ss.length) {
@@ -501,7 +504,7 @@ class UIControl {
                     energyRange.value = v.toString();
                     lSystem.$energy = v;
                     Update();
-                }, 100);
+                }, 10);
             }
             else {
                 playButton.style.backgroundColor = "#32d01b";
