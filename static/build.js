@@ -436,7 +436,7 @@ function Update(UI = true, evolve = false, draw = false, randomize = false) {
     }
 }
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
-SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
+SystemStateDisplay.innerHTML = `State: ${lSystem.FormatState()}`;
 var GenerationUp = document.getElementById("GenerationUp");
 GenerationUp.onclick = () => {
     generation++;
