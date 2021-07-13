@@ -25,7 +25,6 @@ function Update(UI = true, evolve = false, draw = false) {
         _Draw();
     }
     if (draw) {
-        lSystem.reset(SpawnTransform);
         _Draw();
     }
     if (UI) {
@@ -54,6 +53,7 @@ function _Draw() {
 
     canvas.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
 
+    lSystem.reset(SpawnTransform);
     lSystem.View(MainCursor);
     MainCursor.loc.SetTo(SpawnTransform);
 }
@@ -83,7 +83,7 @@ var p5Sketch = (_p: p5) => {
 let canvas: p5;
 
 function main() {
-    console.log('MathHelper.randInt(100,200) :>> ', MathHelper.randInt(100, 200));
+    let v = MathHelper.intSeededGenerator(`seed`)();
     console.log(`Creating canvas ${width} x ${height}`);
     canvas = new p5(p5Sketch);
     MainCursor = new Cursor(canvas, SpawnTransform.Copy());

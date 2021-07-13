@@ -36,10 +36,14 @@ abstract class L_System {
     state: string;
     direction: number;
     actions: ActType;
+    seed: string;
+    rand: () => number;
     reset: (transform: Transform) => void;
     constructor(axiom: string = '', reset: (transform: Transform) => void = () => { }) {
         this.state = this.axiom = axiom;
         this.reset = reset;
+        this.seed = Math.random().toString();
+        this.rand = MathHelper.intSeededGenerator(this.seed);
     }
 
     Evolve() {

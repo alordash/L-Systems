@@ -5,7 +5,7 @@ class BinaryTree extends L_System {
     dictionary: DicType = {
         '0': () => {
             let s = `1[-20]+20`;
-            if (this.random && MathHelper.randInt(0, 100) < this.splitChance.v) {
+            if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
                 s = `1[10]10`;
             } else if (!this.random) {
                 s = `1[20]20`;
@@ -43,6 +43,7 @@ class BinaryTree extends L_System {
         super(BinaryTree.axiom, (transform: Transform) => {
             this.#thick = this.thickness.v;
             transform.dir = BinaryTree.direction;
+            this.rand = MathHelper.intSeededGenerator(this.seed);
         });
         this.step = step;
         this._angle = angle;
@@ -52,13 +53,13 @@ class BinaryTree extends L_System {
         this.splitChance = splitChance;
         this.states = new Array<State>();
         const simpleDraw = (cursor: Cursor) => {
-            if (!this.random || MathHelper.randInt(0, 10) > 2) {
+            if (!this.random || MathHelper.randIntSeeded(0, 10, this.rand) > 2) {
                 cursor.DrawLine(this.CalcStep(), this.#thick);
             }
         }
         let actions: ActType = {
             '0': (cursor: Cursor) => {
-                cursor.DrawLine(this.CalcStep() * 0.75, Math.max(7.5, this.#thick * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randInt(0, BinaryTree.leafColors.length - 1)]));
+                cursor.DrawLine(this.CalcStep() * 0.75, Math.max(7.5, this.#thick * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randIntSeeded(0, BinaryTree.leafColors.length - 1, this.rand)]));
             },
             '1': simpleDraw,
             '2': simpleDraw,
@@ -93,10 +94,10 @@ class BinaryTree extends L_System {
     }
 
     CalcStep() {
-        return this.random ? MathHelper.randomize(this.step.v) : this.step.v;
+        return this.random ? MathHelper.randomizeSeeded(this.step.v, undefined, this.rand) : this.step.v;
     }
 
     CalcAngle() {
-        return this._angle.v + (this.random ? MathHelper.randInt(0, this.#anglePart) : 0);
+        return this._angle.v + (this.random ? MathHelper.randIntSeeded(0, this.#anglePart, this.rand) : 0);
     }
 }

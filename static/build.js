@@ -68,6 +68,8 @@ class L_System {
     constructor(axiom = '', reset = () => { }) {
         this.state = this.axiom = axiom;
         this.reset = reset;
+        this.seed = Math.random().toString();
+        this.rand = MathHelper.intSeededGenerator(this.seed);
     }
     Evolve() {
         let newState = '';
@@ -106,11 +108,41 @@ class State {
     }
 }
 class MathHelper {
-    static randInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+    static map(value, min, max) {
+        return Math.floor(value * (max - min + 1)) + min;
     }
-    static randomize(n) {
-        return n * this.randInt(0.7, 1.3);
+    static randInt(min, max) {
+        return MathHelper.map(Math.random(), min, max);
+    }
+    static randomize(n, percentage = 0.3) {
+        return n * MathHelper.randInt(1 - percentage, 1 + percentage);
+    }
+    static intSeededGenerator(seed = '') {
+        let x = 0;
+        let y = 0;
+        let z = 0;
+        let w = 0;
+        let count = 0;
+        function next() {
+            const t = x ^ (x << 11);
+            x = y;
+            y = z;
+            z = w;
+            w ^= ((w >>> 19) ^ t ^ (t >>> 8)) >>> 0;
+            count++;
+            return w / 0x100000000 + 0.5;
+        }
+        for (var k = 0; k < seed.length + 64; k++) {
+            x ^= seed.charCodeAt(k) | 0;
+            next();
+        }
+        return next;
+    }
+    static randIntSeeded(min, max, generator) {
+        return MathHelper.map(generator(), min, max);
+    }
+    static randomizeSeeded(n, percentage = 0.3, generator) {
+        return n * MathHelper.randIntSeeded(1 - percentage, 1 + percentage, generator);
     }
 }
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
@@ -130,11 +162,12 @@ class BinaryTree extends L_System {
         super(BinaryTree.axiom, (transform) => {
             __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness.v, "f");
             transform.dir = BinaryTree.direction;
+            this.rand = MathHelper.intSeededGenerator(this.seed);
         });
         this.dictionary = {
             '0': () => {
                 let s = `1[-20]+20`;
-                if (this.random && MathHelper.randInt(0, 100) < this.splitChance.v) {
+                if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
                     s = `1[10]10`;
                 }
                 else if (!this.random) {
@@ -159,13 +192,13 @@ class BinaryTree extends L_System {
         this.splitChance = splitChance;
         this.states = new Array();
         const simpleDraw = (cursor) => {
-            if (!this.random || MathHelper.randInt(0, 10) > 2) {
+            if (!this.random || MathHelper.randIntSeeded(0, 10, this.rand) > 2) {
                 cursor.DrawLine(this.CalcStep(), __classPrivateFieldGet(this, _BinaryTree_thick, "f"));
             }
         };
         let actions = {
             '0': (cursor) => {
-                cursor.DrawLine(this.CalcStep() * 0.75, Math.max(7.5, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randInt(0, BinaryTree.leafColors.length - 1)]));
+                cursor.DrawLine(this.CalcStep() * 0.75, Math.max(7.5, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randIntSeeded(0, BinaryTree.leafColors.length - 1, this.rand)]));
             },
             '1': simpleDraw,
             '2': simpleDraw,
@@ -197,10 +230,10 @@ class BinaryTree extends L_System {
         return this._angle.v;
     }
     CalcStep() {
-        return this.random ? MathHelper.randomize(this.step.v) : this.step.v;
+        return this.random ? MathHelper.randomizeSeeded(this.step.v, undefined, this.rand) : this.step.v;
     }
     CalcAngle() {
-        return this._angle.v + (this.random ? MathHelper.randInt(0, __classPrivateFieldGet(this, _BinaryTree_anglePart, "f")) : 0);
+        return this._angle.v + (this.random ? MathHelper.randIntSeeded(0, __classPrivateFieldGet(this, _BinaryTree_anglePart, "f"), this.rand) : 0);
     }
 }
 _BinaryTree_thick = new WeakMap(), _BinaryTree_anglePart = new WeakMap();
@@ -278,7 +311,7 @@ class SierpinskiTriangle extends L_System {
 }
 SierpinskiTriangle.axiom = 'F-G-G';
 SierpinskiTriangle.thickness = 3;
-SierpinskiTriangle.direction = 180;
+SierpinskiTriangle.direction = 60;
 class SierpinskiArrowheadCurve extends L_System {
     constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(60, 0, 180)) {
         super(SierpinskiArrowheadCurve.axiom, (transform) => {
@@ -512,7 +545,6 @@ function Update(UI = true, evolve = false, draw = false) {
         _Draw();
     }
     if (draw) {
-        lSystem.reset(SpawnTransform);
         _Draw();
     }
     if (UI) {
@@ -536,6 +568,7 @@ let MainCursor;
 function _Draw() {
     canvas.background(225, 225, 255);
     canvas.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
+    lSystem.reset(SpawnTransform);
     lSystem.View(MainCursor);
     MainCursor.loc.SetTo(SpawnTransform);
 }
@@ -560,7 +593,7 @@ var p5Sketch = (_p) => {
 };
 let canvas;
 function main() {
-    console.log('MathHelper.randInt(100,200) :>> ', MathHelper.randInt(100, 200));
+    let v = MathHelper.intSeededGenerator(`seed`)();
     console.log(`Creating canvas ${width} x ${height}`);
     canvas = new p5(p5Sketch);
     MainCursor = new Cursor(canvas, SpawnTransform.Copy());
