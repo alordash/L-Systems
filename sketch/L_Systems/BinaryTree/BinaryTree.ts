@@ -2,21 +2,38 @@
 /// <reference path="../../Drawing/Geometry.ts" />
 
 class BinaryTree extends L_System {
+    static Sections = {
+        '0': new Section('0'),
+        '1': new Section('1'),
+        '2': new Section('2'),
+        '+': new Section('+', 0),
+        '-': new Section('-', 0),
+        '[': new Section('[', 0),
+        ']': new Section(']', 0)
+    }
     dictionary: DicType = {
-        '0': () => {
-            let s = `1[-20]+20`;
-            if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
-                s = `1[10]10`;
-            } else if (!this.random) {
-                s = `1[20]20`;
+        '0': (s) => {
+            this.Grow(s);
+            if (this.StopGrow(s)) {
+                return [s];
             }
-            return s;
+            let ss = Section.Decode('1[-20]+20', BinaryTree.Sections);
+            if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
+                ss = Section.Decode('1[10]10', BinaryTree.Sections);
+            } else if (!this.random) {
+                ss = Section.Decode('1[20]20', BinaryTree.Sections);
+            }
+            return ss;
         },
-        '1': () => {
-            return `21`;
+        '1': (s) => {
+            this.Grow(s);
+            if (this.StopGrow(s)) {
+                return [s];
+            }
+            return Section.Decode('21', BinaryTree.Sections);
         },
-        '2': () => {
-            return '2';
+        '2': (s) => {
+            return [s];
         }
     };
     static axiom = '2220';
@@ -40,10 +57,11 @@ class BinaryTree extends L_System {
     #anglePart: number;
 
     constructor(step = new NumberParam(10, 0, 50), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random: boolean = true, splitChance = new NumberParam(23, 0, 100)) {
-        super(BinaryTree.axiom, (transform: Transform) => {
+        super(Section.Decode(BinaryTree.axiom, BinaryTree.Sections), (transform: Transform) => {
             this.#thick = this.thickness.v;
             transform.dir = BinaryTree.direction;
             this.rand = MathHelper.intSeededGenerator(this.seed);
+            this.states = new Array<State>();
         });
         this.step = step;
         this._angle = angle;

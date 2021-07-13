@@ -1,6 +1,38 @@
 /// <reference path="../Drawing/Cursor.ts" />
 
-type DicType = Record<string, () => string>;
+class State {
+    t: Transform;
+    thickness: number;
+    constructor(t: Transform, thick: number = 0) {
+        this.t = t;
+        this.thickness = thick;
+    }
+}
+
+class Section {
+    c: string;
+    evolveLimit: number;
+    stage = 0;
+
+    constructor(c: string, evolveLimit = 100, stage = 0) {
+        this.c = c;
+        this.evolveLimit = evolveLimit;
+        this.stage = stage;
+    }
+
+    static Decode(s: string, sections: Record<string, Section>) {
+        let ss = new Array<Section>();
+        for(let c of s) {
+            let section = sections[c];
+            if(section != undefined) {
+                ss.push(section);
+            }
+        }
+        return ss;
+    }
+}
+
+type DicType = Record<string, (section: Section) => Array<Section>>;
 type ActType = Record<string, (cursor: Cursor) => void>;
 
 class NumberParam {
@@ -32,17 +64,31 @@ abstract class L_System {
     static maxMark = '_max';
 
     dictionary: DicType;
-    axiom: string;
-    state: string;
+    axiom: Array<Section>;
+    state: Array<Section>;
+    energy: number;
     direction: number;
     actions: ActType;
     seed: string;
     rand: () => number;
     reset: (transform: Transform) => void;
-    constructor(axiom: string = '', reset: (transform: Transform) => void = () => { }) {
+    constructor(axiom = Array<Section>(), reset: (transform: Transform) => void = () => { }, stage = -1) {
         this.state = this.axiom = axiom;
+        this.energy = stage;
         this.reset = reset;
         this.Randomize();
+    }
+
+    Grow(s: Section) {
+        if(this.energy > 0 && s.stage < s.evolveLimit) {
+            let available = Math.min(this.energy, s.evolveLimit - s.stage);
+            this.energy -= available;
+            s.stage += available;
+        }
+    }
+
+    StopGrow(s: Section) {
+        return this.energy >= 0 && s.stage < s.evolveLimit;
     }
 
     Randomize() {
@@ -51,12 +97,13 @@ abstract class L_System {
     }
 
     Evolve() {
-        let newState = '';
-        for (let c of this.state) {
-            if (this.dictionary[c] != undefined) {
-                newState += this.dictionary[c]();
+        let newState = new Array<Section>();
+        for (let section of this.state) {
+            let newSection = this.dictionary[section.c];
+            if (newSection != undefined) {
+                newState.push(...newSection(section));
             } else {
-                newState += c;
+                newState.push(section);
             }
         }
         this.state = newState;
@@ -72,18 +119,18 @@ abstract class L_System {
 
     View(cursor: Cursor) {
         for (let c of this.state) {
-            if (this.actions[c] != undefined) {
-                this.actions[c](cursor);
+            let action = this.actions[c.c];
+            if (action != undefined) {
+                action(cursor);
             }
         }
     }
-}
 
-class State {
-    t: Transform;
-    thickness: number;
-    constructor(t: Transform, thick: number = 0) {
-        this.t = t;
-        this.thickness = thick;
+    FormatState() {
+        let s = '';
+        for(let section of this.state) {
+            s += section.c;
+        }
+        return s;
     }
 }

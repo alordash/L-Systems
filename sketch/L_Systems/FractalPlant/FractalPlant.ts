@@ -1,3 +1,4 @@
+/*
 /// <reference path="../../Miscellaneous/Math.ts" />
 /// <reference path="../../Drawing/Geometry.ts" />
 
@@ -46,3 +47,4 @@ class FractalPlant extends L_System {
         this.actions = actions;
     }
 }
+*/

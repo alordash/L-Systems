@@ -28,7 +28,7 @@ function Update(UI = true, evolve = false, draw = false, randomize = false) {
     }
     if (UI) {
         GenerationUp.innerHTML = `Up: ${generation}`;
-        SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
+        SystemStateDisplay.innerHTML = `State: ${lSystem.FormatState()}`;
     }
 }
 

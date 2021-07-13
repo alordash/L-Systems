@@ -1,3 +1,4 @@
+/*
 /// <reference path="../../Miscellaneous/Math.ts" />
 /// <reference path="../../Drawing/Geometry.ts" />
 
@@ -41,3 +42,4 @@ class DragonCurve extends L_System {
         this.actions = actions;
     }
 }
+*/

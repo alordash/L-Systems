@@ -47,6 +47,30 @@ class Cursor {
         this.loc.dir += angle;
     }
 }
+class State {
+    constructor(t, thick = 0) {
+        this.t = t;
+        this.thickness = thick;
+    }
+}
+class Section {
+    constructor(c, evolveLimit = 100, stage = 0) {
+        this.stage = 0;
+        this.c = c;
+        this.evolveLimit = evolveLimit;
+        this.stage = stage;
+    }
+    static Decode(s, sections) {
+        let ss = new Array();
+        for (let c of s) {
+            let section = sections[c];
+            if (section != undefined) {
+                ss.push(section);
+            }
+        }
+        return ss;
+    }
+}
 class NumberParam {
     constructor(v, min = v - 30, max = v + 30) {
         this._v = v;
@@ -65,23 +89,35 @@ class NumberParam {
     }
 }
 class L_System {
-    constructor(axiom = '', reset = () => { }) {
+    constructor(axiom = Array(), reset = () => { }, stage = -1) {
         this.state = this.axiom = axiom;
+        this.energy = stage;
         this.reset = reset;
         this.Randomize();
+    }
+    Grow(s) {
+        if (this.energy > 0 && s.stage < s.evolveLimit) {
+            let available = Math.min(this.energy, s.evolveLimit - s.stage);
+            this.energy -= available;
+            s.stage += available;
+        }
+    }
+    StopGrow(s) {
+        return this.energy >= 0 && s.stage < s.evolveLimit;
     }
     Randomize() {
         this.seed = Math.random().toString();
         this.rand = MathHelper.intSeededGenerator(this.seed);
     }
     Evolve() {
-        let newState = '';
-        for (let c of this.state) {
-            if (this.dictionary[c] != undefined) {
-                newState += this.dictionary[c]();
+        let newState = new Array();
+        for (let section of this.state) {
+            let newSection = this.dictionary[section.c];
+            if (newSection != undefined) {
+                newState.push(...newSection(section));
             }
             else {
-                newState += c;
+                newState.push(section);
             }
         }
         this.state = newState;
@@ -95,21 +131,23 @@ class L_System {
     }
     View(cursor) {
         for (let c of this.state) {
-            if (this.actions[c] != undefined) {
-                this.actions[c](cursor);
+            let action = this.actions[c.c];
+            if (action != undefined) {
+                action(cursor);
             }
         }
+    }
+    FormatState() {
+        let s = '';
+        for (let section of this.state) {
+            s += section.c;
+        }
+        return s;
     }
 }
 L_System.propertyMark = '_';
 L_System.minMark = '_min';
 L_System.maxMark = '_max';
-class State {
-    constructor(t, thick = 0) {
-        this.t = t;
-        this.thickness = thick;
-    }
-}
 class MathHelper {
     static map(value, min, max) {
         return Math.floor(value * (max - min + 1)) + min;
@@ -162,27 +200,36 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _BinaryTree_thick, _BinaryTree_anglePart;
 class BinaryTree extends L_System {
     constructor(step = new NumberParam(10, 0, 50), angle = new NumberParam(23, 0, 90), thickness = new NumberParam(16, 1, 40), random = true, splitChance = new NumberParam(23, 0, 100)) {
-        super(BinaryTree.axiom, (transform) => {
+        super(Section.Decode(BinaryTree.axiom, BinaryTree.Sections), (transform) => {
             __classPrivateFieldSet(this, _BinaryTree_thick, this.thickness.v, "f");
             transform.dir = BinaryTree.direction;
             this.rand = MathHelper.intSeededGenerator(this.seed);
+            this.states = new Array();
         });
         this.dictionary = {
-            '0': () => {
-                let s = `1[-20]+20`;
+            '0': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                let ss = Section.Decode('1[-20]+20', BinaryTree.Sections);
                 if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
-                    s = `1[10]10`;
+                    ss = Section.Decode('1[10]10', BinaryTree.Sections);
                 }
                 else if (!this.random) {
-                    s = `1[20]20`;
+                    ss = Section.Decode('1[20]20', BinaryTree.Sections);
                 }
-                return s;
+                return ss;
             },
-            '1': () => {
-                return `21`;
+            '1': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                return Section.Decode('21', BinaryTree.Sections);
             },
-            '2': () => {
-                return '2';
+            '2': (s) => {
+                return [s];
             }
         };
         _BinaryTree_thick.set(this, void 0);
@@ -240,6 +287,15 @@ class BinaryTree extends L_System {
     }
 }
 _BinaryTree_thick = new WeakMap(), _BinaryTree_anglePart = new WeakMap();
+BinaryTree.Sections = {
+    '0': new Section('0'),
+    '1': new Section('1'),
+    '2': new Section('2'),
+    '+': new Section('+', 0),
+    '-': new Section('-', 0),
+    '[': new Section('[', 0),
+    ']': new Section(']', 0)
+};
 BinaryTree.axiom = '2220';
 BinaryTree.dif = 3;
 BinaryTree.direction = 90;
@@ -249,189 +305,8 @@ BinaryTree.leafColors = [
     [50, 135, 10],
     [120, 120, 0]
 ];
-class KochCurve extends L_System {
-    constructor(step = new NumberParam(10, 0.01, 20), angle = new NumberParam(90, 0, 180)) {
-        super(KochCurve.axiom, (transform) => {
-            transform.dir = KochCurve.direction;
-        });
-        this.dictionary = {
-            'F': () => {
-                return `F+F-F-F+F`;
-            }
-        };
-        this.step = step;
-        this.angle = angle;
-        this.states = new Array();
-        const simpleDraw = (cursor) => {
-            cursor.DrawLine(this.step.v, KochCurve.thickness);
-        };
-        let actions = {
-            'F': simpleDraw,
-            '+': (cursor) => {
-                cursor.loc.dir += this.angle.v;
-            },
-            '-': (cursor) => {
-                cursor.loc.dir -= this.angle.v;
-            }
-        };
-        this.actions = actions;
-    }
-}
-KochCurve.axiom = 'F';
-KochCurve.thickness = 3;
-KochCurve.direction = 0;
-class SierpinskiTriangle extends L_System {
-    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(120, 0, 180)) {
-        super(SierpinskiTriangle.axiom, (transform) => {
-            transform.dir = SierpinskiTriangle.direction;
-        });
-        this.dictionary = {
-            'F': () => {
-                return `F-G+F+G-F`;
-            },
-            'G': () => {
-                return 'GG';
-            }
-        };
-        this.step = step;
-        this.angle = angle;
-        this.states = new Array();
-        const simpleDraw = (cursor) => {
-            cursor.DrawLine(this.step.v, SierpinskiTriangle.thickness);
-        };
-        let actions = {
-            'F': simpleDraw,
-            'G': simpleDraw,
-            '+': (cursor) => {
-                cursor.loc.dir += this.angle.v;
-            },
-            '-': (cursor) => {
-                cursor.loc.dir -= this.angle.v;
-            }
-        };
-        this.actions = actions;
-    }
-}
-SierpinskiTriangle.axiom = 'F-G-G';
-SierpinskiTriangle.thickness = 3;
-SierpinskiTriangle.direction = 60;
-class SierpinskiArrowheadCurve extends L_System {
-    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(60, 0, 180)) {
-        super(SierpinskiArrowheadCurve.axiom, (transform) => {
-            transform.dir = SierpinskiArrowheadCurve.direction;
-        });
-        this.dictionary = {
-            'A': () => {
-                return `B-A-B`;
-            },
-            'B': () => {
-                return 'A+B+A';
-            }
-        };
-        this.step = step;
-        this.angle = angle;
-        this.states = new Array();
-        const simpleDraw = (cursor) => {
-            cursor.DrawLine(this.step.v, SierpinskiArrowheadCurve.thickness);
-        };
-        let actions = {
-            'A': simpleDraw,
-            'B': simpleDraw,
-            '+': (cursor) => {
-                cursor.loc.dir += this.angle.v;
-            },
-            '-': (cursor) => {
-                cursor.loc.dir -= this.angle.v;
-            }
-        };
-        this.actions = actions;
-    }
-}
-SierpinskiArrowheadCurve.axiom = 'A';
-SierpinskiArrowheadCurve.thickness = 3;
-SierpinskiArrowheadCurve.direction = 60;
-class DragonCurve extends L_System {
-    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(90, 0, 180)) {
-        super(DragonCurve.axiom, (transform) => {
-            transform.dir = DragonCurve.direction;
-        });
-        this.dictionary = {
-            'F': () => {
-                return `F+G`;
-            },
-            'G': () => {
-                return 'F-G';
-            }
-        };
-        this.step = step;
-        this.angle = angle;
-        this.states = new Array();
-        const simpleDraw = (cursor) => {
-            cursor.DrawLine(this.step.v, DragonCurve.thickness);
-        };
-        let actions = {
-            'F': simpleDraw,
-            'G': simpleDraw,
-            '+': (cursor) => {
-                cursor.loc.dir += this.angle.v;
-            },
-            '-': (cursor) => {
-                cursor.loc.dir -= this.angle.v;
-            }
-        };
-        this.actions = actions;
-    }
-}
-DragonCurve.axiom = 'F';
-DragonCurve.thickness = 3;
-DragonCurve.direction = 180;
-class FractalPlant extends L_System {
-    constructor(step = new NumberParam(10, 0, 20), angle = new NumberParam(25, 0, 180)) {
-        super(FractalPlant.axiom, (transform) => {
-            transform.dir = FractalPlant.direction;
-        });
-        this.dictionary = {
-            'X': () => {
-                return 'F+[[X]-X]-F[-FX]+X';
-            },
-            'F': () => {
-                return `FF`;
-            }
-        };
-        this.step = step;
-        this.angle = angle;
-        this.states = new Array();
-        const simpleDraw = (cursor) => {
-            cursor.DrawLine(this.step.v, FractalPlant.thickness);
-        };
-        let actions = {
-            'F': simpleDraw,
-            '[': (cursor) => {
-                this.states.push(new State(cursor.loc.Copy()));
-            },
-            ']': (cursor) => {
-                cursor.loc.SetTo(this.states.pop().t);
-            },
-            '+': (cursor) => {
-                cursor.loc.dir += this.angle.v;
-            },
-            '-': (cursor) => {
-                cursor.loc.dir -= this.angle.v;
-            }
-        };
-        this.actions = actions;
-    }
-}
-FractalPlant.axiom = 'X';
-FractalPlant.thickness = 3;
-FractalPlant.direction = 90;
 const L_Systems_List = [
     BinaryTree,
-    KochCurve,
-    SierpinskiTriangle,
-    SierpinskiArrowheadCurve,
-    DragonCurve,
-    FractalPlant
 ];
 class UIControl {
     static InitSpawnMoving(canvas) {
@@ -551,7 +426,7 @@ function Update(UI = true, evolve = false, draw = false, randomize = false) {
     }
     if (UI) {
         GenerationUp.innerHTML = `Up: ${generation}`;
-        SystemStateDisplay.innerHTML = `State: ${lSystem.state}`;
+        SystemStateDisplay.innerHTML = `State: ${lSystem.FormatState()}`;
     }
 }
 var SystemStateDisplay = document.getElementById("SystemStateDisplay");
