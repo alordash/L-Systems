@@ -109,22 +109,22 @@ class NumberParam {
 }
 class L_System {
     constructor(reset = () => { }, stage = -1) {
+        this.$energyDecrease = 0;
         this.$energy = stage;
+        this.$energyDecrease = 0;
         this.reset = reset;
         this.Randomize();
     }
     Grow(s) {
-        if (this.$energy > 0 && s.stage < s.evolveLimit) {
-            let available = Math.min(this.$energy, s.evolveLimit - s.stage);
-            this.$energy -= available;
-            s.stage += available;
-        }
-        else if (this.$energy < 0) {
+        if (this.$energy < 0) {
             s.stage = s.evolveLimit;
+        }
+        else if (s.stage < s.evolveLimit && this.$energy > this.$energyDecrease) {
+            s.stage = Math.min(this.$energy - this.$energyDecrease, s.evolveLimit);
         }
     }
     StopGrow(s) {
-        return this.$energy >= 0 && s.stage < s.evolveLimit;
+        return s.stage < s.evolveLimit;
     }
     Randomize() {
         this.seed = Math.random().toString();
@@ -236,6 +236,7 @@ class BinaryTree extends L_System {
             transform.dir = BinaryTree.direction;
             this.rand = MathHelper.intSeededGenerator(this.seed);
             this.states = new Array();
+            this.$energyDecrease = 0;
         });
         this.dictionary = {
             '0': (s) => {
@@ -243,6 +244,7 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
+                this.$energyDecrease += s.evolveLimit;
                 let ss = Section.Decode('1[-20]+20', this.Sections, s.stage);
                 if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
                     ss = Section.Decode('1[10]10', this.Sections, s.stage);
@@ -257,6 +259,7 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
+                this.$energyDecrease += s.evolveLimit;
                 return Section.Decode('21', this.Sections, s.stage);
             },
             '2': (s) => {
@@ -321,16 +324,16 @@ class BinaryTree extends L_System {
             }),
             '+': new Section('+', (s) => {
                 s.values.push(this.RandAngle());
-            }),
+            }, -1),
             '-': new Section('-', (s) => {
                 s.values.push(this.RandAngle());
-            }),
+            }, -1),
             '[': new Section('[', (s) => {
                 s.values.push(this.RandAngle());
-            }),
+            }, -1),
             ']': new Section(']', (s) => {
                 s.values.push(this.RandAngle());
-            })
+            }, -1)
         };
     }
     set angle(v) {

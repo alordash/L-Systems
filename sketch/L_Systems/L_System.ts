@@ -90,6 +90,7 @@ abstract class L_System {
     axiom: Array<Section>;
     state: Array<Section>;
     $energy: number;
+    $energyDecrease = 0;
     direction: number;
     actions: ActType;
     seed: string;
@@ -97,22 +98,21 @@ abstract class L_System {
     reset: (transform: Transform) => void;
     constructor(reset: (transform: Transform) => void = () => { }, stage = -1) {
         this.$energy = stage;
+        this.$energyDecrease = 0;
         this.reset = reset;
         this.Randomize();
     }
 
     Grow(s: Section) {
-        if (this.$energy > 0 && s.stage < s.evolveLimit) {
-            let available = Math.min(this.$energy, s.evolveLimit - s.stage);
-            this.$energy -= available;
-            s.stage += available;
-        } else if (this.$energy < 0) {
+        if (this.$energy < 0) {
             s.stage = s.evolveLimit;
+        } else if(s.stage < s.evolveLimit && this.$energy > this.$energyDecrease) {
+            s.stage = Math.min(this.$energy - this.$energyDecrease, s.evolveLimit);
         }
     }
 
     StopGrow(s: Section) {
-        return this.$energy >= 0 && s.stage < s.evolveLimit;
+        return s.stage < s.evolveLimit;
     }
 
     Randomize() {

@@ -18,16 +18,16 @@ class BinaryTree extends L_System {
             }),
             '+': new Section('+', (s) => {
                 s.values.push(this.RandAngle());
-            }),
+            }, -1),
             '-': new Section('-', (s) => {
                 s.values.push(this.RandAngle());
-            }),
+            }, -1),
             '[': new Section('[', (s) => {
                 s.values.push(this.RandAngle());
-            }),
+            }, -1),
             ']': new Section(']', (s) => {
                 s.values.push(this.RandAngle());
-            })
+            }, -1)
         }
     }
     dictionary: DicType = {
@@ -36,6 +36,7 @@ class BinaryTree extends L_System {
             if (this.StopGrow(s)) {
                 return [s];
             }
+            this.$energyDecrease += s.evolveLimit;
             let ss = Section.Decode('1[-20]+20', this.Sections, s.stage);
             if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
                 ss = Section.Decode('1[10]10', this.Sections, s.stage);
@@ -49,6 +50,7 @@ class BinaryTree extends L_System {
             if (this.StopGrow(s)) {
                 return [s];
             }
+            this.$energyDecrease += s.evolveLimit;
             return Section.Decode('21', this.Sections, s.stage);
         },
         '2': (s) => {
@@ -82,6 +84,7 @@ class BinaryTree extends L_System {
             transform.dir = BinaryTree.direction;
             this.rand = MathHelper.intSeededGenerator(this.seed);
             this.states = new Array<State>();
+            this.$energyDecrease = 0;
         });
         this.step = step;
         this._angle = angle;
