@@ -37,10 +37,14 @@ class Section {
         }
         return ss;
     }
+
+    progress() {
+        return this.stage / this.evolveLimit;
+    }
 }
 
 type DicType = Record<string, (section: Section) => Array<Section>>;
-type ActType = Record<string, (cursor: Cursor) => void>;
+type ActType = Record<string, (cursor: Cursor, s: Section) => void>;
 
 class NumberParam {
     _v: number;
@@ -131,7 +135,7 @@ abstract class L_System {
         for (let c of this.state) {
             let action = this.actions[c.c];
             if (action != undefined) {
-                action(cursor);
+                action(cursor, c);
             }
         }
     }

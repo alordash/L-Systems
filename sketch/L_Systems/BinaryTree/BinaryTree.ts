@@ -6,10 +6,10 @@ class BinaryTree extends L_System {
         '0': new Section('0'),
         '1': new Section('1'),
         '2': new Section('2'),
-        '+': new Section('+', 0),
-        '-': new Section('-', 0),
-        '[': new Section('[', 0),
-        ']': new Section(']', 0)
+        '+': new Section('+', -1),
+        '-': new Section('-', -1),
+        '[': new Section('[', -1),
+        ']': new Section(']', -1)
     }
     dictionary: DicType = {
         '0': (s) => {
@@ -71,13 +71,13 @@ class BinaryTree extends L_System {
         this.random = random;
         this.splitChance = splitChance;
         this.states = new Array<State>();
-        const simpleDraw = (cursor: Cursor) => {
+        const simpleDraw = (cursor: Cursor, s: Section) => {
             if (!this.random || MathHelper.randIntSeeded(0, 10, this.rand) > 2) {
-                cursor.DrawLine(this.CalcStep(), this.#thick);
+                cursor.DrawLine(this.CalcStep() * s.progress(), this.#thick);
             }
         }
         let actions: ActType = {
-            '0': (cursor: Cursor) => {
+            '0': (cursor: Cursor, s: Section) => {
                 cursor.DrawLine(this.CalcStep() * 0.75, Math.max(7.5, this.#thick * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randIntSeeded(0, BinaryTree.leafColors.length - 1, this.rand)]));
             },
             '1': simpleDraw,

@@ -143,7 +143,7 @@ abstract class UIControl {
             if(playing) {
                 playButton.style.backgroundColor = "#d0451b";
                 playButton.textContent = "Stop";
-                energyRange.step = (playStep = +energyRange.max / 1000).toString();
+                energyRange.step = (playStep = +energyRange.max / 10000).toString();
                 playTimer = setInterval(() => {
                     let maxVal = +energyRange.max;
                     let v = +energyRange.value + playStep;

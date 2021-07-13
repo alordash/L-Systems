@@ -76,6 +76,9 @@ class Section {
         }
         return ss;
     }
+    progress() {
+        return this.stage / this.evolveLimit;
+    }
 }
 class NumberParam {
     constructor(v, min = v - 30, max = v + 30) {
@@ -142,7 +145,7 @@ class L_System {
         for (let c of this.state) {
             let action = this.actions[c.c];
             if (action != undefined) {
-                action(cursor);
+                action(cursor, c);
             }
         }
     }
@@ -232,12 +235,6 @@ class BinaryTree extends L_System {
                     return [s];
                 }
                 let ss = Section.Decode('1[-20]+20', BinaryTree.Sections, s.stage);
-                if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
-                    ss = Section.Decode('1[10]10', BinaryTree.Sections, s.stage);
-                }
-                else if (!this.random) {
-                    ss = Section.Decode('1[20]20', BinaryTree.Sections, s.stage);
-                }
                 return ss;
             },
             '1': (s) => {
@@ -261,13 +258,13 @@ class BinaryTree extends L_System {
         this.random = random;
         this.splitChance = splitChance;
         this.states = new Array();
-        const simpleDraw = (cursor) => {
+        const simpleDraw = (cursor, s) => {
             if (!this.random || MathHelper.randIntSeeded(0, 10, this.rand) > 2) {
-                cursor.DrawLine(this.CalcStep(), __classPrivateFieldGet(this, _BinaryTree_thick, "f"));
+                cursor.DrawLine(this.CalcStep() * s.progress(), __classPrivateFieldGet(this, _BinaryTree_thick, "f"));
             }
         };
         let actions = {
-            '0': (cursor) => {
+            '0': (cursor, s) => {
                 cursor.DrawLine(this.CalcStep() * 0.75, Math.max(7.5, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 1.2), cursor.p5.color(BinaryTree.leafColors[MathHelper.randIntSeeded(0, BinaryTree.leafColors.length - 1, this.rand)]));
             },
             '1': simpleDraw,
@@ -311,10 +308,10 @@ BinaryTree.Sections = {
     '0': new Section('0'),
     '1': new Section('1'),
     '2': new Section('2'),
-    '+': new Section('+', 0),
-    '-': new Section('-', 0),
-    '[': new Section('[', 0),
-    ']': new Section(']', 0)
+    '+': new Section('+', -1),
+    '-': new Section('-', -1),
+    '[': new Section('[', -1),
+    ']': new Section(']', -1)
 };
 BinaryTree.axiom = '2220';
 BinaryTree.dif = 3;
@@ -455,7 +452,7 @@ class UIControl {
             if (playing) {
                 playButton.style.backgroundColor = "#d0451b";
                 playButton.textContent = "Stop";
-                energyRange.step = (playStep = +energyRange.max / 1000).toString();
+                energyRange.step = (playStep = +energyRange.max / 10000).toString();
                 playTimer = setInterval(() => {
                     let maxVal = +energyRange.max;
                     let v = +energyRange.value + playStep;
