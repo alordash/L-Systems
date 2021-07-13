@@ -42,6 +42,10 @@ abstract class L_System {
     constructor(axiom: string = '', reset: (transform: Transform) => void = () => { }) {
         this.state = this.axiom = axiom;
         this.reset = reset;
+        this.Randomize();
+    }
+
+    Randomize() {
         this.seed = Math.random().toString();
         this.rand = MathHelper.intSeededGenerator(this.seed);
     }

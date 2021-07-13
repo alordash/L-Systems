@@ -16,7 +16,10 @@ UIControl.CreateOptions();
 
 let evolveCounter = 0;
 let evolveTrigger = 5;
-function Update(UI = true, evolve = false, draw = false) {
+function Update(UI = true, evolve = false, draw = false, randomize = false) {
+    if(randomize) {
+        lSystem.Randomize();
+    }
     if (!evolve) {
         evolveCounter = (evolveCounter + 1) % evolveTrigger;
     }

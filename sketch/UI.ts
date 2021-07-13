@@ -21,7 +21,7 @@ abstract class UIControl {
             }
         }
         canvas.onmousedown = () => {
-            Update(undefined, true);
+            Update(undefined, true, undefined, true);
         }
     }
 
@@ -68,7 +68,6 @@ abstract class UIControl {
         range.id = UIControl.RangeFormat(key);
         range.type = 'range'; range.className = 'rangeParam'; range.min = `${value.min}`; range.max = `${value.max}`; range.step = '0.1'; range.value = `${isProperty ? obj[key] : obj[key].v}`;
         range.onchange = () => {
-            console.log(`For ${key}`);
             if (isProperty) {
                 obj[key] = +range.value;
             } else {

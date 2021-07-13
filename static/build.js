@@ -68,6 +68,9 @@ class L_System {
     constructor(axiom = '', reset = () => { }) {
         this.state = this.axiom = axiom;
         this.reset = reset;
+        this.Randomize();
+    }
+    Randomize() {
         this.seed = Math.random().toString();
         this.rand = MathHelper.intSeededGenerator(this.seed);
     }
@@ -447,7 +450,7 @@ class UIControl {
             }
         };
         canvas.onmousedown = () => {
-            Update(undefined, true);
+            Update(undefined, true, undefined, true);
         };
     }
     static CreateOptions() {
@@ -536,7 +539,10 @@ UIControl.CreateParametersPanel(lSystem);
 UIControl.CreateOptions();
 let evolveCounter = 0;
 let evolveTrigger = 5;
-function Update(UI = true, evolve = false, draw = false) {
+function Update(UI = true, evolve = false, draw = false, randomize = false) {
+    if (randomize) {
+        lSystem.Randomize();
+    }
     if (!evolve) {
         evolveCounter = (evolveCounter + 1) % evolveTrigger;
     }
