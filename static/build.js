@@ -250,7 +250,7 @@ BinaryTree.leafColors = [
     [120, 120, 0]
 ];
 class KochCurve extends L_System {
-    constructor(step = new NumberParam(10, 0.01, 100), angle = new NumberParam(90, 0, 180)) {
+    constructor(step = new NumberParam(10, 0.01, 20), angle = new NumberParam(90, 0, 180)) {
         super(KochCurve.axiom, (transform) => {
             transform.dir = KochCurve.direction;
         });
@@ -349,7 +349,7 @@ class SierpinskiArrowheadCurve extends L_System {
 }
 SierpinskiArrowheadCurve.axiom = 'A';
 SierpinskiArrowheadCurve.thickness = 3;
-SierpinskiArrowheadCurve.direction = 0;
+SierpinskiArrowheadCurve.direction = 60;
 class DragonCurve extends L_System {
     constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(90, 0, 180)) {
         super(DragonCurve.axiom, (transform) => {

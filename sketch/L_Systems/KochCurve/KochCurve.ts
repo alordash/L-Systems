@@ -15,7 +15,7 @@ class KochCurve extends L_System {
     angle: NumberParam;
     states: State[];
 
-    constructor(step = new NumberParam(10, 0.01, 100), angle = new NumberParam(90, 0, 180)) {
+    constructor(step = new NumberParam(10, 0.01, 20), angle = new NumberParam(90, 0, 180)) {
         super(KochCurve.axiom, (transform: Transform) => {
             transform.dir = KochCurve.direction;
         });

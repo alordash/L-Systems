@@ -12,13 +12,13 @@ class SierpinskiArrowheadCurve extends L_System {
     };
     static axiom = 'A';
     static thickness = 3;
-    static direction = 0;
+    static direction = 60;
 
     step: NumberParam;
     angle: NumberParam;
     states: State[];
 
-    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(60, 0, 180)) {
+    constructor(step = new NumberParam(10, 0.01, 20), angle = new NumberParam(60, 0, 180)) {
         super(SierpinskiArrowheadCurve.axiom, (transform: Transform) => {
             transform.dir = SierpinskiArrowheadCurve.direction;
         });
