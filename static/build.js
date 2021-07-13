@@ -60,12 +60,15 @@ class Section {
         this.evolveLimit = evolveLimit;
         this.stage = stage;
     }
+    Copy() {
+        return new Section(this.c, this.evolveLimit, this.stage);
+    }
     static Decode(s, sections) {
         let ss = new Array();
         for (let c of s) {
             let section = sections[c];
             if (section != undefined) {
-                ss.push(section);
+                ss.push(section.Copy());
             }
         }
         return ss;
@@ -89,21 +92,21 @@ class NumberParam {
     }
 }
 class L_System {
-    constructor(axiom = Array(), reset = () => { }, stage = -1) {
+    constructor(axiom = Array(), reset = () => { }, stage = new NumberParam(-1, -1, 200000)) {
         this.state = this.axiom = axiom;
         this.energy = stage;
         this.reset = reset;
         this.Randomize();
     }
     Grow(s) {
-        if (this.energy > 0 && s.stage < s.evolveLimit) {
-            let available = Math.min(this.energy, s.evolveLimit - s.stage);
-            this.energy -= available;
+        if (this.energy.v > 0 && s.stage < s.evolveLimit) {
+            let available = Math.min(this.energy.v, s.evolveLimit - s.stage);
+            this.energy.v -= available;
             s.stage += available;
         }
     }
     StopGrow(s) {
-        return this.energy >= 0 && s.stage < s.evolveLimit;
+        return this.energy.v >= 0 && s.stage < s.evolveLimit;
     }
     Randomize() {
         this.seed = Math.random().toString();
@@ -229,6 +232,7 @@ class BinaryTree extends L_System {
                 return Section.Decode('21', BinaryTree.Sections);
             },
             '2': (s) => {
+                this.Grow(s);
                 return [s];
             }
         };
@@ -386,7 +390,9 @@ class UIControl {
         params.appendChild(range);
     }
     static CreateParametersPanel(system) {
-        let ranges = document.getElementsByClassName('rangeParam');
+        let ranges = Array.from(document.getElementById('Params').childNodes.values()).filter(x => {
+            return x.className == 'rangeParam';
+        });
         for (let range of ranges) {
             range.remove();
         }

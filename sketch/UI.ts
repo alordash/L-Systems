@@ -61,7 +61,13 @@ abstract class UIControl {
 
         let range = document.createElement("input");
         range.id = UIControl.RangeFormat(key);
-        range.type = 'range'; range.className = 'rangeParam'; range.min = `${value.min}`; range.max = `${value.max}`; range.step = '0.1'; range.value = `${isProperty ? obj[key] : obj[key].v}`;
+        range.type = 'range';
+        range.className = 'rangeParam';
+        range.min = `${value.min}`;
+        range.max = `${value.max}`;
+        range.step = '0.1';
+        range.value = `${isProperty ? obj[key] : obj[key].v}`;
+
         range.onchange = () => {
             if (isProperty) {
                 obj[key] = +range.value;
@@ -84,7 +90,9 @@ abstract class UIControl {
     }
 
     static CreateParametersPanel(system: L_System) {
-        let ranges = document.getElementsByClassName('rangeParam');
+        let ranges = Array.from(document.getElementById('Params').childNodes.values()).filter(x => {
+            return (<HTMLElement>x).className == 'rangeParam';
+        });
         for (let range of ranges) {
             range.remove();
         }
@@ -98,7 +106,7 @@ abstract class UIControl {
         }
     }
 
-    static Init(lSystem : L_System) {
+    static Init(lSystem: L_System) {
         UIControl.InitRandomizeButton();
         UIControl.CreateParametersPanel(lSystem);
         UIControl.CreateOptions();
