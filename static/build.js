@@ -235,6 +235,12 @@ class BinaryTree extends L_System {
                     return [s];
                 }
                 let ss = Section.Decode('1[-20]+20', BinaryTree.Sections, s.stage);
+                if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
+                    ss = Section.Decode('1[10]10', BinaryTree.Sections, s.stage);
+                }
+                else if (!this.random) {
+                    ss = Section.Decode('1[20]20', BinaryTree.Sections, s.stage);
+                }
                 return ss;
             },
             '1': (s) => {
