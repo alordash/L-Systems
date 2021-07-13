@@ -434,13 +434,6 @@ const L_Systems_List = [
     FractalPlant
 ];
 class UIControl {
-    static InitRenderCheck() {
-        var continueRenderingCheckbox = document.getElementById("ContinueRendering");
-        continueRenderingCheckbox.checked = continueRendering;
-        continueRenderingCheckbox.onchange = function () {
-            continueRendering = continueRenderingCheckbox.checked;
-        };
-    }
     static InitSpawnMoving(canvas) {
         canvas.onmousemove = (e) => {
             if (e.buttons) {
@@ -449,7 +442,9 @@ class UIControl {
                 Update(undefined, undefined, true);
             }
         };
-        canvas.onmousedown = () => {
+    }
+    static InitRandomizeButton() {
+        document.getElementById("Randomize").onclick = () => {
             Update(undefined, true, undefined, true);
         };
     }
@@ -494,7 +489,6 @@ class UIControl {
         range.step = '0.1';
         range.value = `${isProperty ? obj[key] : obj[key].v}`;
         range.onchange = () => {
-            console.log(`For ${key}`);
             if (isProperty) {
                 obj[key] = +range.value;
             }
@@ -530,13 +524,15 @@ class UIControl {
             }
         }
     }
+    static Init(lSystem) {
+        UIControl.InitRandomizeButton();
+        UIControl.CreateParametersPanel(lSystem);
+        UIControl.CreateOptions();
+    }
 }
 UIControl.paramsFiller = `<b>Parameters</b><br />`;
-var continueRendering = false;
-UIControl.InitRenderCheck();
 let lSystem = new BinaryTree();
-UIControl.CreateParametersPanel(lSystem);
-UIControl.CreateOptions();
+UIControl.Init(lSystem);
 let evolveCounter = 0;
 let evolveTrigger = 5;
 function Update(UI = true, evolve = false, draw = false, randomize = false) {
@@ -590,11 +586,6 @@ var p5Sketch = (_p) => {
         _p.fill(255);
         _p.stroke(0);
         _p.strokeWeight(2);
-    };
-    _p.draw = () => {
-        if (continueRendering) {
-            Update(false);
-        }
     };
 };
 let canvas;

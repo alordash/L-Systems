@@ -4,14 +4,6 @@
 abstract class UIControl {
     static paramsFiller = `<b>Parameters</b><br />`;
 
-    static InitRenderCheck() {
-        var continueRenderingCheckbox = <HTMLInputElement>document.getElementById("ContinueRendering");
-        continueRenderingCheckbox.checked = continueRendering;
-        continueRenderingCheckbox.onchange = function () {
-            continueRendering = continueRenderingCheckbox.checked;
-        }
-    }
-
     static InitSpawnMoving(canvas: HTMLElement) {
         canvas.onmousemove = (e) => {
             if (e.buttons) {
@@ -20,7 +12,10 @@ abstract class UIControl {
                 Update(undefined, undefined, true);
             }
         }
-        canvas.onmousedown = () => {
+    }
+
+    static InitRandomizeButton() {
+        document.getElementById("Randomize").onclick = () => {
             Update(undefined, true, undefined, true);
         }
     }
@@ -101,5 +96,11 @@ abstract class UIControl {
                 UIControl.CreateNumberParameter(system, key);
             }
         }
+    }
+
+    static Init(lSystem : L_System) {
+        UIControl.InitRandomizeButton();
+        UIControl.CreateParametersPanel(lSystem);
+        UIControl.CreateOptions();
     }
 }

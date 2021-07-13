@@ -6,13 +6,9 @@
 /// <reference path="UI.ts" />
 /// <reference path="constants.ts" />
 
-var continueRendering = false;
-UIControl.InitRenderCheck();
-
 let lSystem: L_System = new BinaryTree();
 
-UIControl.CreateParametersPanel(lSystem);
-UIControl.CreateOptions();
+UIControl.Init(lSystem);
 
 let evolveCounter = 0;
 let evolveTrigger = 5;
@@ -74,12 +70,6 @@ var p5Sketch = (_p: p5) => {
         _p.fill(255);
         _p.stroke(0);
         _p.strokeWeight(2);
-    };
-
-    _p.draw = () => {
-        if (continueRendering) {
-            Update(false);
-        }
     };
 };
 
