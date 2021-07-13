@@ -12,7 +12,7 @@ class SierpinskiTriangle extends L_System {
     };
     static axiom = 'F-G-G';
     static thickness = 3;
-    static direction = 180;
+    static direction = 60;
 
     step: NumberParam;
     angle: NumberParam;
