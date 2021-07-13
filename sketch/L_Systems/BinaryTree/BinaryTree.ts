@@ -33,6 +33,7 @@ class BinaryTree extends L_System {
             return Section.Decode('21', BinaryTree.Sections);
         },
         '2': (s) => {
+            this.Grow(s);
             return [s];
         }
     };
