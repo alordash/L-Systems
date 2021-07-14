@@ -505,7 +505,8 @@ class UIControl {
         }
     }
     static UpdateEnergyRange(energyRange) {
-        let energy = lSystem.CountMaxEnergy(generation);
+        let energy = lSystem.CountMaxEnergy(generation) + 1;
+        energyRange.min = Section.evolveLimit.toString();
         energyRange.max = energy.toString();
         energyRange.step = (energy / 100).toString();
     }
@@ -516,7 +517,8 @@ class UIControl {
         UIControl.UpdateEnergyRange(energyRange);
         timeCheckbox.onchange = () => {
             energyDiv.style.visibility = timeCheckbox.checked ? '' : 'hidden';
-            lSystem.$energy = timeCheckbox.checked ? lSystem.$energy : 0;
+            lSystem.$energy = timeCheckbox.checked ? +energyRange.value : -1;
+            Update(undefined, true);
         };
         energyRange.onchange = () => {
             lSystem.$energy = +energyRange.value;
@@ -538,7 +540,7 @@ class UIControl {
                 playTimer = setInterval(() => {
                     let maxVal = +energyRange.max;
                     let v = +energyRange.value + playStep;
-                    if (v > maxVal || v < 0) {
+                    if (v > maxVal || v < Section.evolveLimit) {
                         v -= 2 * playStep;
                         playStep *= -1;
                     }
