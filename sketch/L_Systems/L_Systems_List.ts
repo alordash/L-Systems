@@ -11,6 +11,6 @@ const L_Systems_List = [
     KochCurve,
     SierpinskiTriangle,
     SierpinskiArrowheadCurve,
-    /*DragonCurve,
-    FractalPlant*/
+    DragonCurve,
+    /*FractalPlant*/
 ];

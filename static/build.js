@@ -509,11 +509,72 @@ class SierpinskiArrowheadCurve extends L_System {
 SierpinskiArrowheadCurve.axiom = 'A';
 SierpinskiArrowheadCurve.thickness = 3;
 SierpinskiArrowheadCurve.direction = 60;
+class DragonCurve extends L_System {
+    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(90, 0, 180)) {
+        super((transform) => {
+            transform.dir = DragonCurve.direction;
+            this.$energyDecrease = 0;
+        });
+        this.Sections = {
+            'F': new Section('F'),
+            'G': new Section('G'),
+            '+': new Section('+', undefined),
+            '-': new Section('-', undefined)
+        };
+        this.dictionary = {
+            'F': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                let v = s.stage;
+                return Section.Decode('F+G', this.Sections, undefined, [v, 0, v]);
+            },
+            'G': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                let v = s.stage;
+                return Section.Decode('F-G', this.Sections, undefined, [v, 0, v]);
+            },
+            '+': (s) => {
+                this.Grow(s);
+                return [s];
+            },
+            '-': (s) => {
+                this.Grow(s);
+                return [s];
+            }
+        };
+        this.state = this.axiom = Section.Decode(DragonCurve.axiom, this.Sections);
+        this.step = step;
+        this.angle = angle;
+        const simpleDraw = (cursor, s) => {
+            cursor.DrawLine(this.step.v, DragonCurve.thickness);
+        };
+        let actions = {
+            'F': simpleDraw,
+            'G': simpleDraw,
+            '+': (cursor, s) => {
+                cursor.loc.dir += this.angle.v * s.progress();
+            },
+            '-': (cursor, s) => {
+                cursor.loc.dir -= this.angle.v * s.progress();
+            }
+        };
+        this.actions = actions;
+    }
+}
+DragonCurve.axiom = 'F';
+DragonCurve.thickness = 3;
+DragonCurve.direction = 180;
 const L_Systems_List = [
     BinaryTree,
     KochCurve,
     SierpinskiTriangle,
     SierpinskiArrowheadCurve,
+    DragonCurve,
 ];
 let playTimer;
 let playing = false;
