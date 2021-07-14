@@ -875,11 +875,17 @@ var GenerationUp = document.getElementById("GenerationUp");
 GenerationUp.onclick = () => {
     generation++;
     Update(undefined, true, undefined, undefined, true);
+    let playButton = document.getElementById('PlayButton');
+    playButton.onclick(undefined);
+    playButton.onclick(undefined);
 };
 var GenerationDown = document.getElementById("GenerationDown");
 GenerationDown.onclick = () => {
     generation--;
     Update(undefined, true, undefined, undefined, true);
+    let playButton = document.getElementById('PlayButton');
+    playButton.onclick(undefined);
+    playButton.onclick(undefined);
 };
 let MainCursor;
 function _Draw() {
