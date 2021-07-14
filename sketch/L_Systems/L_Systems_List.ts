@@ -8,8 +8,8 @@
 
 const L_Systems_List = [
     BinaryTree,
-/*    KochCurve,
-    SierpinskiTriangle,
+    KochCurve,
+    /*SierpinskiTriangle,
     SierpinskiArrowheadCurve,
     DragonCurve,
     FractalPlant*/

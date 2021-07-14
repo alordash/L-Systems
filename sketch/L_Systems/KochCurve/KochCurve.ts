@@ -1,11 +1,19 @@
-/*
 /// <reference path="../../Miscellaneous/Math.ts" />
 /// <reference path="../../Drawing/Geometry.ts" />
 
 class KochCurve extends L_System {
+    Sections = {
+        'F': new Section('F'),
+        '+': new Section('+', undefined, -1),
+        '-': new Section('-', undefined, -1)
+    }
     dictionary: DicType = {
-        'F': () => {
-            return `F+F-F-F+F`;
+        'F': (s) => {
+            this.Grow(s);
+            if (this.StopGrow(s)) {
+                return [s];
+            }
+            return Section.Decode('F+F-F-F+F', this.Sections, s.stage);
         }
     };
     static axiom = 'F';
@@ -17,17 +25,18 @@ class KochCurve extends L_System {
     states: State[];
 
     constructor(step = new NumberParam(10, 0.01, 20), angle = new NumberParam(90, 0, 180)) {
-        super(KochCurve.axiom, (transform: Transform) => {
+        super((transform: Transform) => {
             transform.dir = KochCurve.direction;
+            this.$energyDecrease = 0;
         });
+        this.state = this.axiom = Section.Decode(KochCurve.axiom, this.Sections);
         this.step = step;
         this.angle = angle;
         this.states = new Array<State>();
-        const simpleDraw = (cursor: Cursor) => {
-            cursor.DrawLine(this.step.v, KochCurve.thickness);
-        }
         let actions: ActType = {
-            'F': simpleDraw,
+            'F': (cursor: Cursor, s: Section) => {
+                cursor.DrawLine(this.step.v * s.progress(), KochCurve.thickness);
+            },
             '+': (cursor: Cursor) => {
                 cursor.loc.dir += this.angle.v;
             },
@@ -38,4 +47,3 @@ class KochCurve extends L_System {
         this.actions = actions;
     }
 }
-*/

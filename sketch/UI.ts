@@ -120,7 +120,7 @@ abstract class UIControl {
         energyRange.step = (energy / 100).toString();
     }
 
-    static InitTimeRange(lSystem: L_System) {
+    static InitTimeRange() {
         let timeCheckbox = <HTMLInputElement>document.getElementById('TimeCheckbox');
         let energyDiv = document.getElementById('energydiv');
         let energyRange = <HTMLInputElement>document.getElementById('energyrange');
@@ -166,10 +166,10 @@ abstract class UIControl {
         }
     }
 
-    static Init(lSystem: L_System) {
+    static Init() {
         UIControl.InitRandomizeButton();
         UIControl.CreateParametersPanel(lSystem);
         UIControl.CreateOptions();
-        UIControl.InitTimeRange(lSystem);
+        UIControl.InitTimeRange();
     }
 }

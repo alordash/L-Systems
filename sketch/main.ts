@@ -8,7 +8,7 @@
 
 let lSystem: L_System = new BinaryTree();
 
-UIControl.Init(lSystem);
+UIControl.Init();
 
 let evolveCounter = 0;
 let evolveTrigger = 5;

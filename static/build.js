@@ -360,8 +360,50 @@ BinaryTree.leafColors = [
     [50, 135, 10],
     [120, 120, 0]
 ];
+class KochCurve extends L_System {
+    constructor(step = new NumberParam(10, 0.01, 20), angle = new NumberParam(90, 0, 180)) {
+        super((transform) => {
+            transform.dir = KochCurve.direction;
+            this.$energyDecrease = 0;
+        });
+        this.Sections = {
+            'F': new Section('F'),
+            '+': new Section('+', undefined, -1),
+            '-': new Section('-', undefined, -1)
+        };
+        this.dictionary = {
+            'F': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                return Section.Decode('F+F-F-F+F', this.Sections, s.stage);
+            }
+        };
+        this.state = this.axiom = Section.Decode(KochCurve.axiom, this.Sections);
+        this.step = step;
+        this.angle = angle;
+        this.states = new Array();
+        let actions = {
+            'F': (cursor, s) => {
+                cursor.DrawLine(this.step.v * s.progress(), KochCurve.thickness);
+            },
+            '+': (cursor) => {
+                cursor.loc.dir += this.angle.v;
+            },
+            '-': (cursor) => {
+                cursor.loc.dir -= this.angle.v;
+            }
+        };
+        this.actions = actions;
+    }
+}
+KochCurve.axiom = 'F';
+KochCurve.thickness = 3;
+KochCurve.direction = 0;
 const L_Systems_List = [
     BinaryTree,
+    KochCurve,
 ];
 let playTimer;
 let playing = false;
@@ -467,7 +509,7 @@ class UIControl {
         energyRange.max = energy.toString();
         energyRange.step = (energy / 100).toString();
     }
-    static InitTimeRange(lSystem) {
+    static InitTimeRange() {
         let timeCheckbox = document.getElementById('TimeCheckbox');
         let energyDiv = document.getElementById('energydiv');
         let energyRange = document.getElementById('energyrange');
@@ -512,16 +554,16 @@ class UIControl {
             }
         };
     }
-    static Init(lSystem) {
+    static Init() {
         UIControl.InitRandomizeButton();
         UIControl.CreateParametersPanel(lSystem);
         UIControl.CreateOptions();
-        UIControl.InitTimeRange(lSystem);
+        UIControl.InitTimeRange();
     }
 }
 UIControl.paramsFiller = `<b>Parameters</b><br />`;
 let lSystem = new BinaryTree();
-UIControl.Init(lSystem);
+UIControl.Init();
 let evolveCounter = 0;
 let evolveTrigger = 5;
 function Update(UI = true, evolve = false, draw = false, randomize = false, countEnergy = false) {
