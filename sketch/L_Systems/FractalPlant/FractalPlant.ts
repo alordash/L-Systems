@@ -5,8 +5,8 @@ class FractalPlant extends L_System {
     Sections = {
         'X': new Section('X'),
         'F': new Section('F'),
-        '+': new Section('+', undefined, -1),
-        '-': new Section('-', undefined, -1),
+        '+': new Section('+', undefined),
+        '-': new Section('-', undefined),
         '[': new Section('[', undefined, -1),
         ']': new Section(']', undefined, -1)
     }
@@ -24,6 +24,14 @@ class FractalPlant extends L_System {
                 return [s];
             }
             return Section.Decode('FF', this.Sections, s.stage);
+        },
+        '+': (s) => {
+            this.Grow(s);
+            return [s];
+        },
+        '-': (s) => {
+            this.Grow(s);
+            return [s];
         }
     };
     static axiom = 'X';
@@ -53,11 +61,11 @@ class FractalPlant extends L_System {
             ']': (cursor: Cursor) => {
                 cursor.loc.SetTo(this.states.pop().t);
             },
-            '+': (cursor: Cursor) => {
-                cursor.loc.dir += this.angle.v;
+            '+': (cursor: Cursor, s: Section) => {
+                cursor.loc.dir += this.angle.v * s.progress();
             },
-            '-': (cursor: Cursor) => {
-                cursor.loc.dir -= this.angle.v;
+            '-': (cursor: Cursor, s: Section) => {
+                cursor.loc.dir -= this.angle.v * s.progress();
             }
         }
         this.actions = actions;
