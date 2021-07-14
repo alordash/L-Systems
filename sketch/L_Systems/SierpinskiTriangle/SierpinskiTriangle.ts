@@ -31,7 +31,6 @@ class SierpinskiTriangle extends L_System {
 
     step: NumberParam;
     angle: NumberParam;
-    states: State[];
 
     constructor(step = new NumberParam(10, 0.01, 50), angle = new NumberParam(120, 0, 180)) {
         super((transform: Transform) => {
@@ -41,7 +40,6 @@ class SierpinskiTriangle extends L_System {
         this.state = this.axiom = Section.Decode(SierpinskiTriangle.axiom, this.Sections);
         this.step = step;
         this.angle = angle;
-        this.states = new Array<State>();
         const simpleDraw = (cursor: Cursor, s: Section) => {
             cursor.DrawLine(this.step.v * s.progress(), SierpinskiTriangle.thickness);
         }

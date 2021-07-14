@@ -23,7 +23,7 @@ class Section {
         return new Section(this.c, this.init, this.evolveLimit, this.stage);
     }
 
-    static Decode(s: string, sections: Record<string, Section>, stage = 0) {
+    static Decode(s: string, sections: Record<string, Section>, stage = 0, stageValues: Array<number> = []) {
         let ss = new Array<Section>();
         for (let c of s) {
             let section = sections[c];
@@ -35,6 +35,11 @@ class Section {
         }
         if (ss.length) {
             ss[0].stage = stage;
+        }
+        for(let i in stageValues) {
+            if(ss[i] != undefined) {
+                ss[i].stage = stageValues[i];
+            }
         }
         return ss;
     }

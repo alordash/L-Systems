@@ -22,7 +22,6 @@ class KochCurve extends L_System {
 
     step: NumberParam;
     angle: NumberParam;
-    states: State[];
 
     constructor(step = new NumberParam(10, 0.01, 40), angle = new NumberParam(90, 0, 180)) {
         super((transform: Transform) => {
@@ -32,7 +31,6 @@ class KochCurve extends L_System {
         this.state = this.axiom = Section.Decode(KochCurve.axiom, this.Sections);
         this.step = step;
         this.angle = angle;
-        this.states = new Array<State>();
         let actions: ActType = {
             'F': (cursor: Cursor, s: Section) => {
                 cursor.DrawLine(this.step.v * s.progress(), KochCurve.thickness);

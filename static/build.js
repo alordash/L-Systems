@@ -45,7 +45,7 @@ class Section {
     Copy() {
         return new Section(this.c, this.init, this.evolveLimit, this.stage);
     }
-    static Decode(s, sections, stage = 0) {
+    static Decode(s, sections, stage = 0, stageValues = []) {
         let ss = new Array();
         for (let c of s) {
             let section = sections[c];
@@ -57,6 +57,11 @@ class Section {
         }
         if (ss.length) {
             ss[0].stage = stage;
+        }
+        for (let i in stageValues) {
+            if (ss[i] != undefined) {
+                ss[i].stage = stageValues[i];
+            }
         }
         return ss;
     }
@@ -383,7 +388,6 @@ class KochCurve extends L_System {
         this.state = this.axiom = Section.Decode(KochCurve.axiom, this.Sections);
         this.step = step;
         this.angle = angle;
-        this.states = new Array();
         let actions = {
             'F': (cursor, s) => {
                 cursor.DrawLine(this.step.v * s.progress(), KochCurve.thickness);
@@ -432,7 +436,6 @@ class SierpinskiTriangle extends L_System {
         this.state = this.axiom = Section.Decode(SierpinskiTriangle.axiom, this.Sections);
         this.step = step;
         this.angle = angle;
-        this.states = new Array();
         const simpleDraw = (cursor, s) => {
             cursor.DrawLine(this.step.v * s.progress(), SierpinskiTriangle.thickness);
         };
@@ -452,10 +455,65 @@ class SierpinskiTriangle extends L_System {
 SierpinskiTriangle.axiom = 'F-G-G';
 SierpinskiTriangle.thickness = 3;
 SierpinskiTriangle.direction = 0;
+class SierpinskiArrowheadCurve extends L_System {
+    constructor(step = new NumberParam(10, 0.01, 20), angle = new NumberParam(60, 0, 180)) {
+        super((transform) => {
+            transform.dir = SierpinskiArrowheadCurve.direction;
+            this.$energyDecrease = 0;
+        });
+        this.Sections = {
+            'A': new Section('A'),
+            'B': new Section('B'),
+            '+': new Section('+', undefined, -1),
+            '-': new Section('-', undefined, -1)
+        };
+        this.dictionary = {
+            'A': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                let v = s.stage / 2;
+                return Section.Decode('B-A-B', this.Sections, undefined, [v, 0, v, 0, v]);
+            },
+            'B': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                let v = s.stage / 2;
+                return Section.Decode('A+B+A', this.Sections, undefined, [v, 0, v, 0, v]);
+            }
+        };
+        this.state = this.axiom = Section.Decode(SierpinskiArrowheadCurve.axiom, this.Sections);
+        this.step = step;
+        this.angle = angle;
+        const simpleDraw = (cursor, s) => {
+            cursor.DrawLine(this.step.v * s.progress(), SierpinskiArrowheadCurve.thickness);
+        };
+        let actions = {
+            'A': simpleDraw,
+            'B': (cursor, s) => {
+                cursor.DrawLine(this.step.v * s.progress(), SierpinskiArrowheadCurve.thickness);
+            },
+            '+': (cursor) => {
+                cursor.loc.dir += this.angle.v;
+            },
+            '-': (cursor) => {
+                cursor.loc.dir -= this.angle.v;
+            }
+        };
+        this.actions = actions;
+    }
+}
+SierpinskiArrowheadCurve.axiom = 'A';
+SierpinskiArrowheadCurve.thickness = 3;
+SierpinskiArrowheadCurve.direction = 60;
 const L_Systems_List = [
     BinaryTree,
     KochCurve,
     SierpinskiTriangle,
+    SierpinskiArrowheadCurve,
 ];
 let playTimer;
 let playing = false;
@@ -659,8 +717,8 @@ function _Draw() {
     canvas.background(225, 225, 255);
     canvas.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
     lSystem.reset(SpawnTransform);
-    lSystem.View(MainCursor);
     MainCursor.loc.SetTo(SpawnTransform);
+    lSystem.View(MainCursor);
 }
 var p5Sketch = (_p) => {
     _p.setup = () => {

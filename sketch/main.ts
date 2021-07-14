@@ -56,8 +56,8 @@ function _Draw() {
     canvas.ellipse(SpawnPoint.x, SpawnPoint.y, pWidth);
 
     lSystem.reset(SpawnTransform);
-    lSystem.View(MainCursor);
     MainCursor.loc.SetTo(SpawnTransform);
+    lSystem.View(MainCursor);
 }
 
 var p5Sketch = (_p: p5) => {
