@@ -12,5 +12,5 @@ const L_Systems_List = [
     SierpinskiTriangle,
     SierpinskiArrowheadCurve,
     DragonCurve,
-    /*FractalPlant*/
+    FractalPlant
 ];

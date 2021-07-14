@@ -575,12 +575,70 @@ class DragonCurve extends L_System {
 DragonCurve.axiom = 'F';
 DragonCurve.thickness = 3;
 DragonCurve.direction = 180;
+class FractalPlant extends L_System {
+    constructor(step = new NumberParam(10, 0, 20), angle = new NumberParam(25, 0, 180)) {
+        super((transform) => {
+            transform.dir = FractalPlant.direction;
+            this.$energyDecrease = 0;
+        });
+        this.Sections = {
+            'X': new Section('X'),
+            'F': new Section('F'),
+            '+': new Section('+', undefined, -1),
+            '-': new Section('-', undefined, -1),
+            '[': new Section('[', undefined, -1),
+            ']': new Section(']', undefined, -1)
+        };
+        this.dictionary = {
+            'X': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                return Section.Decode('F+[[X]-X]-F[-FX]+X', this.Sections);
+            },
+            'F': (s) => {
+                this.Grow(s);
+                if (this.StopGrow(s)) {
+                    return [s];
+                }
+                return Section.Decode('FF', this.Sections, s.stage);
+            }
+        };
+        this.state = this.axiom = Section.Decode(FractalPlant.axiom, this.Sections);
+        this.step = step;
+        this.angle = angle;
+        this.states = new Array();
+        let actions = {
+            'F': (cursor, s) => {
+                cursor.DrawLine(this.step.v * s.progress(), FractalPlant.thickness);
+            },
+            '[': (cursor) => {
+                this.states.push(new State(cursor.loc.Copy()));
+            },
+            ']': (cursor) => {
+                cursor.loc.SetTo(this.states.pop().t);
+            },
+            '+': (cursor) => {
+                cursor.loc.dir += this.angle.v;
+            },
+            '-': (cursor) => {
+                cursor.loc.dir -= this.angle.v;
+            }
+        };
+        this.actions = actions;
+    }
+}
+FractalPlant.axiom = 'X';
+FractalPlant.thickness = 3;
+FractalPlant.direction = 90;
 const L_Systems_List = [
     BinaryTree,
     KochCurve,
     SierpinskiTriangle,
     SierpinskiArrowheadCurve,
     DragonCurve,
+    FractalPlant
 ];
 let playTimer;
 let playing = false;
