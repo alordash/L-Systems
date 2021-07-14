@@ -1,7 +1,7 @@
 # L-Systems
 
 Runtime [L-System](https://en.wikipedia.org/wiki/L-system) drawer.  
-### [Open link](https://alordash.github.io/L-Systems/static/index.html)
+### [Available here (open link)](https://alordash.github.io/L-Systems/static/index.html)
   
 Can display:
 1. [Binary tree](https://en.wikipedia.org/wiki/L-system#Example_2:_Fractal_(binary)_tree)
