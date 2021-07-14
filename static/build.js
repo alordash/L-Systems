@@ -264,6 +264,22 @@ class BinaryTree extends L_System {
             '2': (s) => {
                 this.Grow(s);
                 return [s];
+            },
+            '+': (s) => {
+                this.Grow(s);
+                return [s];
+            },
+            '-': (s) => {
+                this.Grow(s);
+                return [s];
+            },
+            '[': (s) => {
+                this.Grow(s);
+                return [s];
+            },
+            ']': (s) => {
+                this.Grow(s);
+                return [s];
             }
         };
         _BinaryTree_thick.set(this, void 0);
@@ -291,19 +307,19 @@ class BinaryTree extends L_System {
             '[': (cursor, s) => {
                 __classPrivateFieldSet(this, _BinaryTree_thick, __classPrivateFieldGet(this, _BinaryTree_thick, "f") * 0.75, "f");
                 this.states.push(new State(cursor.loc.Copy(), __classPrivateFieldGet(this, _BinaryTree_thick, "f")));
-                cursor.loc.dir += this.CalcAngle(s.values[0]);
+                cursor.loc.dir += this.CalcAngle(s.values[0]) * s.progress();
             },
             ']': (cursor, s) => {
                 let state = this.states.pop();
                 __classPrivateFieldSet(this, _BinaryTree_thick, state.thickness, "f");
                 cursor.loc.SetTo(state.t);
-                cursor.loc.dir -= this.CalcAngle(s.values[0]);
+                cursor.loc.dir -= this.CalcAngle(s.values[0]) * s.progress();
             },
             '+': (cursor, s) => {
-                cursor.loc.dir += this.CalcAngle(s.values[0]);
+                cursor.loc.dir += this.CalcAngle(s.values[0]) * s.progress();
             },
             '-': (cursor, s) => {
-                cursor.loc.dir -= this.CalcAngle(s.values[0]);
+                cursor.loc.dir -= this.CalcAngle(s.values[0]) * s.progress();
             }
         };
         this.actions = actions;
@@ -323,16 +339,16 @@ class BinaryTree extends L_System {
             }),
             '+': new Section('+', (s) => {
                 s.values.push(this.RandAngle());
-            }, -1),
+            }),
             '-': new Section('-', (s) => {
                 s.values.push(this.RandAngle());
-            }, -1),
+            }),
             '[': new Section('[', (s) => {
                 s.values.push(this.RandAngle());
-            }, -1),
+            }),
             ']': new Section(']', (s) => {
                 s.values.push(this.RandAngle());
-            }, -1)
+            })
         };
     }
     set angle(v) {

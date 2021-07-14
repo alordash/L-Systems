@@ -18,16 +18,16 @@ class BinaryTree extends L_System {
             }),
             '+': new Section('+', (s) => {
                 s.values.push(this.RandAngle());
-            }, -1),
+            }),
             '-': new Section('-', (s) => {
                 s.values.push(this.RandAngle());
-            }, -1),
+            }),
             '[': new Section('[', (s) => {
                 s.values.push(this.RandAngle());
-            }, -1),
+            }),
             ']': new Section(']', (s) => {
                 s.values.push(this.RandAngle());
-            }, -1)
+            })
         }
     }
     dictionary: DicType = {
@@ -52,6 +52,22 @@ class BinaryTree extends L_System {
             return Section.Decode('21', this.Sections, s.stage);
         },
         '2': (s) => {
+            this.Grow(s);
+            return [s];
+        },
+        '+': (s) => {
+            this.Grow(s);
+            return [s];
+        },
+        '-': (s) => {
+            this.Grow(s);
+            return [s];
+        },
+        '[': (s) => {
+            this.Grow(s);
+            return [s];
+        },
+        ']': (s) => {
             this.Grow(s);
             return [s];
         }
@@ -107,19 +123,19 @@ class BinaryTree extends L_System {
             '[': (cursor: Cursor, s: Section) => {
                 this.#thick *= 0.75;
                 this.states.push(new State(cursor.loc.Copy(), this.#thick));
-                cursor.loc.dir += this.CalcAngle(s.values[0]);
+                cursor.loc.dir += this.CalcAngle(s.values[0]) * s.progress();
             },
             ']': (cursor: Cursor, s: Section) => {
                 let state = this.states.pop();
                 this.#thick = state.thickness;
                 cursor.loc.SetTo(state.t);
-                cursor.loc.dir -= this.CalcAngle(s.values[0]);
+                cursor.loc.dir -= this.CalcAngle(s.values[0]) * s.progress();
             },
             '+': (cursor: Cursor, s: Section) => {
-                cursor.loc.dir += this.CalcAngle(s.values[0]);
+                cursor.loc.dir += this.CalcAngle(s.values[0]) * s.progress();
             },
             '-': (cursor: Cursor, s: Section) => {
-                cursor.loc.dir -= this.CalcAngle(s.values[0]);
+                cursor.loc.dir -= this.CalcAngle(s.values[0]) * s.progress();
             }
         }
         this.actions = actions;
