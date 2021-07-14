@@ -64,9 +64,12 @@ var p5Sketch = (_p: p5) => {
 
     _p.setup = () => {
         let canvasElement = _p.createCanvas(width, height);
-        canvasElement.style('border', '#000000');
-        canvasElement.style('borderStyle', 'solid');
-        canvasElement.style('border-width', '3px');
+        canvasElement.style('border', '#000000')
+            .style('borderStyle', 'solid')
+            .style('border-width', '3px')
+            .style('position', 'absolute')
+            .style('left', '304px')
+            .style('top', '108px');
         let element = <HTMLElement>canvasElement.elt;
         document.getElementById('Editor').appendChild(element);
         UIControl.InitSpawnMoving(element);

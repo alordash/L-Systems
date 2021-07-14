@@ -1,9 +1,9 @@
 /// <reference path="Drawing/Geometry.ts" />
 
-let width = 2000;
-let height = 1200;
+let width = 3000;
+let height = 2000;
 
-let SpawnPoint = new Point(width / 2, height - 100);
+let SpawnPoint = new Point(575, 800);
 const pWidth = 10;
 
 let SpawnTransform = new Transform(SpawnPoint, 90);

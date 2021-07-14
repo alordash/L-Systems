@@ -21,9 +21,9 @@ class Transform {
         this.dir = t.dir;
     }
 }
-let width = 2000;
-let height = 1200;
-let SpawnPoint = new Point(width / 2, height - 100);
+let width = 3000;
+let height = 2000;
+let SpawnPoint = new Point(575, 800);
 const pWidth = 10;
 let SpawnTransform = new Transform(SpawnPoint, 90);
 var generation = 0;
@@ -245,7 +245,7 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                let ss = Section.Decode('1[-20]+20', this.Sections, s.stage);
+                let ss = Section.Decode('1[-20]+20', this.Sections, undefined, [0, 0, 0, 0, 0, 0, 0, s.stage]);
                 if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
                     ss = Section.Decode('1[10]10', this.Sections, s.stage);
                 }
@@ -530,7 +530,7 @@ class SierpinskiArrowheadCurve extends L_System {
 }
 SierpinskiArrowheadCurve.axiom = 'A';
 SierpinskiArrowheadCurve.thickness = 3;
-SierpinskiArrowheadCurve.direction = 60;
+SierpinskiArrowheadCurve.direction = 0;
 class DragonCurve extends L_System {
     constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(90, 0, 180)) {
         super((transform) => {
@@ -667,7 +667,7 @@ const L_Systems_List = [
 let playTimer;
 let playing = false;
 let playStep = 50;
-let time = 10;
+let time = 6;
 let fps = 100;
 class UIControl {
     static InitSpawnMoving(canvas) {
@@ -892,9 +892,12 @@ function _Draw() {
 var p5Sketch = (_p) => {
     _p.setup = () => {
         let canvasElement = _p.createCanvas(width, height);
-        canvasElement.style('border', '#000000');
-        canvasElement.style('borderStyle', 'solid');
-        canvasElement.style('border-width', '3px');
+        canvasElement.style('border', '#000000')
+            .style('borderStyle', 'solid')
+            .style('border-width', '3px')
+            .style('position', 'absolute')
+            .style('left', '304px')
+            .style('top', '108px');
         let element = canvasElement.elt;
         document.getElementById('Editor').appendChild(element);
         UIControl.InitSpawnMoving(element);

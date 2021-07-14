@@ -36,7 +36,7 @@ class BinaryTree extends L_System {
             if (this.StopGrow(s)) {
                 return [s];
             }
-            let ss = Section.Decode('1[-20]+20', this.Sections, s.stage);
+            let ss = Section.Decode('1[-20]+20', this.Sections, undefined, [0, 0, 0, 0, 0, 0, 0, s.stage]);
             if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
                 ss = Section.Decode('1[10]10', this.Sections, s.stage);
             } else if (!this.random) {

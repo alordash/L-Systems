@@ -36,7 +36,7 @@ class SierpinskiArrowheadCurve extends L_System {
     };
     static axiom = 'A';
     static thickness = 3;
-    static direction = 60;
+    static direction = 0;
 
     step: NumberParam;
     angle: NumberParam;
