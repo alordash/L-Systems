@@ -54,7 +54,7 @@ abstract class UIControl {
         return `${key}range`;
     }
 
-    static CreateNumberParameter(obj: L_System, key: string) {
+    static CreateNumberParameter(system: L_System, key: string) {
         if (key[0] == L_System.ignoreMark) {
             return;
         }
@@ -62,7 +62,7 @@ abstract class UIControl {
         if (isProperty) {
             key = key.substring(1);
         }
-        let value = obj[key];
+        let value = system[key];
 
         const params = document.getElementById('Params');
 
@@ -76,27 +76,49 @@ abstract class UIControl {
         range.min = `${value.min}`;
         range.max = `${value.max}`;
         range.step = '0.1';
-        range.value = `${isProperty ? obj[key] : obj[key].v}`;
+        range.value = `${isProperty ? system[key] : system[key].v}`;
 
         range.onchange = () => {
             if (isProperty) {
-                obj[key] = +range.value;
+                system[key] = +range.value;
             } else {
-                obj[key].v = +range.value;
+                system[key].v = +range.value;
             }
             Update(undefined, true);
         }
         range.onmousemove = (e) => {
             if (e.buttons) {
                 if (isProperty) {
-                    obj[key] = +range.value;
+                    system[key] = +range.value;
                 } else {
-                    obj[key].v = +range.value;
+                    system[key].v = +range.value;
                 }
                 Update();
             }
         }
         params.appendChild(range);
+    }
+
+    static CreateBooleanParameter(system: L_System, key: string) {
+        if (key[0] == L_System.ignoreMark) {
+            return;
+        }
+
+        const params = document.getElementById('Params');
+
+        params.appendChild(document.createElement('br'));
+        params.appendChild(document.createTextNode(key));
+
+        let checkbox = document.createElement("input");
+        checkbox.id = UIControl.RangeFormat(key);
+        checkbox.type = 'checkbox';
+        checkbox.checked = system[key];
+
+        checkbox.onchange = () => {
+            system[key] = checkbox.checked;
+            Update(undefined, true);
+        }
+        params.appendChild(checkbox);
     }
 
     static CreateParametersPanel(system: L_System) {
@@ -110,6 +132,8 @@ abstract class UIControl {
         for (let [key, value] of Object.entries(system)) {
             if (value instanceof NumberParam) {
                 UIControl.CreateNumberParameter(system, key);
+            } else if (typeof value == 'boolean') {
+                UIControl.CreateBooleanParameter(system, key);
             }
         }
     }
@@ -141,11 +165,11 @@ abstract class UIControl {
                 Update();
             }
         }
-        
+
         let playButton = <HTMLInputElement>document.getElementById('PlayButton');
         playButton.onclick = () => {
             playing = !playing;
-            if(playing) {
+            if (playing) {
                 playButton.style.backgroundColor = "#d0451b";
                 playButton.textContent = "Stop";
                 energyRange.step = (playStep = +energyRange.max / (fps * time)).toString();

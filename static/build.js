@@ -707,7 +707,7 @@ class UIControl {
     static RangeFormat(key) {
         return `${key}range`;
     }
-    static CreateNumberParameter(obj, key) {
+    static CreateNumberParameter(system, key) {
         if (key[0] == L_System.ignoreMark) {
             return;
         }
@@ -715,7 +715,7 @@ class UIControl {
         if (isProperty) {
             key = key.substring(1);
         }
-        let value = obj[key];
+        let value = system[key];
         const params = document.getElementById('Params');
         params.appendChild(document.createElement('br'));
         params.appendChild(document.createTextNode(key));
@@ -726,28 +726,45 @@ class UIControl {
         range.min = `${value.min}`;
         range.max = `${value.max}`;
         range.step = '0.1';
-        range.value = `${isProperty ? obj[key] : obj[key].v}`;
+        range.value = `${isProperty ? system[key] : system[key].v}`;
         range.onchange = () => {
             if (isProperty) {
-                obj[key] = +range.value;
+                system[key] = +range.value;
             }
             else {
-                obj[key].v = +range.value;
+                system[key].v = +range.value;
             }
             Update(undefined, true);
         };
         range.onmousemove = (e) => {
             if (e.buttons) {
                 if (isProperty) {
-                    obj[key] = +range.value;
+                    system[key] = +range.value;
                 }
                 else {
-                    obj[key].v = +range.value;
+                    system[key].v = +range.value;
                 }
                 Update();
             }
         };
         params.appendChild(range);
+    }
+    static CreateBooleanParameter(system, key) {
+        if (key[0] == L_System.ignoreMark) {
+            return;
+        }
+        const params = document.getElementById('Params');
+        params.appendChild(document.createElement('br'));
+        params.appendChild(document.createTextNode(key));
+        let checkbox = document.createElement("input");
+        checkbox.id = UIControl.RangeFormat(key);
+        checkbox.type = 'checkbox';
+        checkbox.checked = system[key];
+        checkbox.onchange = () => {
+            system[key] = checkbox.checked;
+            Update(undefined, true);
+        };
+        params.appendChild(checkbox);
     }
     static CreateParametersPanel(system) {
         let ranges = Array.from(document.getElementById('Params').childNodes.values()).filter(x => {
@@ -760,6 +777,9 @@ class UIControl {
         for (let [key, value] of Object.entries(system)) {
             if (value instanceof NumberParam) {
                 UIControl.CreateNumberParameter(system, key);
+            }
+            else if (typeof value == 'boolean') {
+                UIControl.CreateBooleanParameter(system, key);
             }
         }
     }
