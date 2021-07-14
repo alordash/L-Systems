@@ -5,7 +5,7 @@ let playTimer: NodeJS.Timer;
 let playing = false;
 let playStep = 50;
 
-let time = 10;
+let time = 6;
 let fps = 100;
 
 abstract class UIControl {
