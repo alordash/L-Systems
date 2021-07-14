@@ -1,7 +1,7 @@
 /// <reference path="Drawing/Geometry.ts" />
 
 let width = 3000;
-let height = 2000;
+let height = 830;
 
 let SpawnPoint = new Point(575, 800);
 const pWidth = 10;
