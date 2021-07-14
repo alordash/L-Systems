@@ -464,8 +464,8 @@ class SierpinskiArrowheadCurve extends L_System {
         this.Sections = {
             'A': new Section('A'),
             'B': new Section('B'),
-            '+': new Section('+', undefined, -1),
-            '-': new Section('-', undefined, -1)
+            '+': new Section('+', undefined),
+            '-': new Section('-', undefined)
         };
         this.dictionary = {
             'A': (s) => {
@@ -473,7 +473,7 @@ class SierpinskiArrowheadCurve extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                let v = s.stage / 2;
+                let v = s.stage;
                 return Section.Decode('B-A-B', this.Sections, undefined, [v, 0, v, 0, v]);
             },
             'B': (s) => {
@@ -481,26 +481,32 @@ class SierpinskiArrowheadCurve extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                let v = s.stage / 2;
+                let v = s.stage;
                 return Section.Decode('A+B+A', this.Sections, undefined, [v, 0, v, 0, v]);
+            },
+            '+': (s) => {
+                this.Grow(s);
+                return [s];
+            },
+            '-': (s) => {
+                this.Grow(s);
+                return [s];
             }
         };
         this.state = this.axiom = Section.Decode(SierpinskiArrowheadCurve.axiom, this.Sections);
         this.step = step;
         this.angle = angle;
         const simpleDraw = (cursor, s) => {
-            cursor.DrawLine(this.step.v * s.progress(), SierpinskiArrowheadCurve.thickness);
+            cursor.DrawLine(this.step.v, SierpinskiArrowheadCurve.thickness);
         };
         let actions = {
             'A': simpleDraw,
-            'B': (cursor, s) => {
-                cursor.DrawLine(this.step.v * s.progress(), SierpinskiArrowheadCurve.thickness);
+            'B': simpleDraw,
+            '+': (cursor, s) => {
+                cursor.loc.dir += this.angle.v * s.progress();
             },
-            '+': (cursor) => {
-                cursor.loc.dir += this.angle.v;
-            },
-            '-': (cursor) => {
-                cursor.loc.dir -= this.angle.v;
+            '-': (cursor, s) => {
+                cursor.loc.dir -= this.angle.v * s.progress();
             }
         };
         this.actions = actions;
