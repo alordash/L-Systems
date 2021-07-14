@@ -361,7 +361,7 @@ BinaryTree.leafColors = [
     [120, 120, 0]
 ];
 class KochCurve extends L_System {
-    constructor(step = new NumberParam(10, 0.01, 20), angle = new NumberParam(90, 0, 180)) {
+    constructor(step = new NumberParam(10, 0.01, 40), angle = new NumberParam(90, 0, 180)) {
         super((transform) => {
             transform.dir = KochCurve.direction;
             this.$energyDecrease = 0;
@@ -402,7 +402,7 @@ KochCurve.axiom = 'F';
 KochCurve.thickness = 3;
 KochCurve.direction = 0;
 class SierpinskiTriangle extends L_System {
-    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(120, 0, 180)) {
+    constructor(step = new NumberParam(10, 0.01, 50), angle = new NumberParam(120, 0, 180)) {
         super((transform) => {
             transform.dir = SierpinskiTriangle.direction;
             this.$energyDecrease = 0;

@@ -33,7 +33,7 @@ class SierpinskiTriangle extends L_System {
     angle: NumberParam;
     states: State[];
 
-    constructor(step = new NumberParam(10, 0.01, 30), angle = new NumberParam(120, 0, 180)) {
+    constructor(step = new NumberParam(10, 0.01, 50), angle = new NumberParam(120, 0, 180)) {
         super((transform: Transform) => {
             transform.dir = SierpinskiTriangle.direction;
             this.$energyDecrease = 0;
