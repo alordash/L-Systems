@@ -11,5 +11,8 @@ Can display:
 5. [Dragon curve](https://en.wikipedia.org/wiki/L-system#Example_6:_Dragon_curve)
 6. [Fractal plant](https://en.wikipedia.org/wiki/L-system#Example_7:_Fractal_plant)  
 
+![Demo1](previews/ls1.png)
+![Demo2](previews/ls2.png)
+
 Animations included.  
 This project uses [p5](https://p5js.org/).
