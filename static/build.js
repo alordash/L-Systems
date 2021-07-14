@@ -27,34 +27,8 @@ let SpawnPoint = new Point(width / 2, height - 100);
 const pWidth = 10;
 let SpawnTransform = new Transform(SpawnPoint, 90);
 var generation = 0;
-class Cursor {
-    constructor(p5, loc) {
-        this.p5 = p5;
-        this.loc = loc;
-    }
-    DrawLine(length, strokeWeight = 1, color = this.p5.color(0, 0, 0)) {
-        let x = this.loc.pos.x;
-        let y = this.loc.pos.y;
-        let rad = this.loc.dir * Math.PI / 180;
-        let xNew = x + length * Math.cos(rad);
-        let yNew = y - length * Math.sin(rad);
-        this.p5.strokeWeight(strokeWeight);
-        this.p5.stroke(color);
-        this.p5.line(x, y, xNew, yNew);
-        this.loc.pos = new Point(xNew, yNew);
-    }
-    Turn(angle) {
-        this.loc.dir += angle;
-    }
-}
-class State {
-    constructor(t, thick = 0) {
-        this.t = t;
-        this.thickness = thick;
-    }
-}
 class Section {
-    constructor(c, init = () => { }, evolveLimit = 100, stage = 0, values = undefined) {
+    constructor(c, init = () => { }, evolveLimit = Section.evolveLimit, stage = 0, values = undefined) {
         this.stage = 0;
         this.c = c;
         this.evolveLimit = evolveLimit;
@@ -88,6 +62,33 @@ class Section {
     }
     progress() {
         return this.stage / this.evolveLimit;
+    }
+}
+Section.evolveLimit = 100;
+class Cursor {
+    constructor(p5, loc) {
+        this.p5 = p5;
+        this.loc = loc;
+    }
+    DrawLine(length, strokeWeight = 1, color = this.p5.color(0, 0, 0)) {
+        let x = this.loc.pos.x;
+        let y = this.loc.pos.y;
+        let rad = this.loc.dir * Math.PI / 180;
+        let xNew = x + length * Math.cos(rad);
+        let yNew = y - length * Math.sin(rad);
+        this.p5.strokeWeight(strokeWeight);
+        this.p5.stroke(color);
+        this.p5.line(x, y, xNew, yNew);
+        this.loc.pos = new Point(xNew, yNew);
+    }
+    Turn(angle) {
+        this.loc.dir += angle;
+    }
+}
+class State {
+    constructor(t, thick = 0) {
+        this.t = t;
+        this.thickness = thick;
     }
 }
 class NumberParam {
@@ -142,6 +143,7 @@ class L_System {
             }
         }
         this.state = newState;
+        this.$energyDecrease += Section.evolveLimit;
     }
     EvolveTo(generation, transform) {
         this.reset(transform);
@@ -165,14 +167,8 @@ class L_System {
         }
         return s;
     }
-    CountMaxEnergy(generation, transform) {
-        this.$energy = -1;
-        this.EvolveTo(generation, transform);
-        let n = 0;
-        for (let section of this.state) {
-            n += section.stage;
-        }
-        return n;
+    CountMaxEnergy(generation) {
+        return (generation - 1) * Section.evolveLimit;
     }
 }
 L_System.propertyMark = '_';
@@ -244,7 +240,6 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                this.$energyDecrease += s.evolveLimit;
                 let ss = Section.Decode('1[-20]+20', this.Sections, s.stage);
                 if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
                     ss = Section.Decode('1[10]10', this.Sections, s.stage);
@@ -259,7 +254,6 @@ class BinaryTree extends L_System {
                 if (this.StopGrow(s)) {
                     return [s];
                 }
-                this.$energyDecrease += s.evolveLimit;
                 return Section.Decode('21', this.Sections, s.stage);
             },
             '2': (s) => {
@@ -372,6 +366,8 @@ const L_Systems_List = [
 let playTimer;
 let playing = false;
 let playStep = 50;
+let time = 10;
+let fps = 100;
 class UIControl {
     static InitSpawnMoving(canvas) {
         canvas.onmousemove = (e) => {
@@ -467,7 +463,7 @@ class UIControl {
         }
     }
     static UpdateEnergyRange(energyRange) {
-        let energy = lSystem.CountMaxEnergy(generation, SpawnTransform);
+        let energy = lSystem.CountMaxEnergy(generation);
         energyRange.max = energy.toString();
         energyRange.step = (energy / 100).toString();
     }
@@ -496,7 +492,7 @@ class UIControl {
             if (playing) {
                 playButton.style.backgroundColor = "#d0451b";
                 playButton.textContent = "Stop";
-                energyRange.step = (playStep = +energyRange.max / 1000).toString();
+                energyRange.step = (playStep = +energyRange.max / (fps * time)).toString();
                 playTimer = setInterval(() => {
                     let maxVal = +energyRange.max;
                     let v = +energyRange.value + playStep;
@@ -507,7 +503,7 @@ class UIControl {
                     energyRange.value = v.toString();
                     lSystem.$energy = v;
                     Update();
-                }, 10);
+                }, 1000 / fps);
             }
             else {
                 playButton.style.backgroundColor = "#32d01b";

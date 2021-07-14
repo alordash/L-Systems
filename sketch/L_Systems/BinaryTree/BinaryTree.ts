@@ -36,7 +36,6 @@ class BinaryTree extends L_System {
             if (this.StopGrow(s)) {
                 return [s];
             }
-            this.$energyDecrease += s.evolveLimit;
             let ss = Section.Decode('1[-20]+20', this.Sections, s.stage);
             if (this.random && MathHelper.randIntSeeded(0, 100, this.rand) < this.splitChance.v) {
                 ss = Section.Decode('1[10]10', this.Sections, s.stage);
@@ -50,7 +49,6 @@ class BinaryTree extends L_System {
             if (this.StopGrow(s)) {
                 return [s];
             }
-            this.$energyDecrease += s.evolveLimit;
             return Section.Decode('21', this.Sections, s.stage);
         },
         '2': (s) => {

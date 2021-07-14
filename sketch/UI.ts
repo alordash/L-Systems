@@ -5,6 +5,9 @@ let playTimer: NodeJS.Timer;
 let playing = false;
 let playStep = 50;
 
+let time = 10;
+let fps = 100;
+
 abstract class UIControl {
     static paramsFiller = `<b>Parameters</b><br />`;
 
@@ -112,7 +115,7 @@ abstract class UIControl {
     }
 
     static UpdateEnergyRange(energyRange: HTMLInputElement) {
-        let energy = lSystem.CountMaxEnergy(generation, SpawnTransform);
+        let energy = lSystem.CountMaxEnergy(generation);
         energyRange.max = energy.toString();
         energyRange.step = (energy / 100).toString();
     }
@@ -143,7 +146,7 @@ abstract class UIControl {
             if(playing) {
                 playButton.style.backgroundColor = "#d0451b";
                 playButton.textContent = "Stop";
-                energyRange.step = (playStep = +energyRange.max / 1000).toString();
+                energyRange.step = (playStep = +energyRange.max / (fps * time)).toString();
                 playTimer = setInterval(() => {
                     let maxVal = +energyRange.max;
                     let v = +energyRange.value + playStep;
@@ -154,7 +157,7 @@ abstract class UIControl {
                     energyRange.value = v.toString();
                     lSystem.$energy = v;
                     Update();
-                }, 10);
+                }, 1000 / fps);
             } else {
                 playButton.style.backgroundColor = "#32d01b";
                 playButton.textContent = "Play";

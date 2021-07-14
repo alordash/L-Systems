@@ -1,3 +1,4 @@
+/// <reference path="Section.ts" />
 /// <reference path="../Drawing/Cursor.ts" />
 
 class State {
@@ -6,51 +7,6 @@ class State {
     constructor(t: Transform, thick: number = 0) {
         this.t = t;
         this.thickness = thick;
-    }
-}
-
-class Section {
-    c: string;
-    evolveLimit: number;
-    stage = 0;
-    values: Array<number>;
-    init: (s: Section) => void;
-
-    constructor(c: string, init: (s: Section) => void = () => { }, evolveLimit = 100, stage = 0, values: Array<number> = undefined) {
-        this.c = c;
-        this.evolveLimit = evolveLimit;
-        this.stage = stage;
-        this.init = init;
-        if (values != undefined) {
-            this.values = values;
-        } else {
-            this.values = new Array<number>();
-            this.init(this);
-        }
-    }
-
-    Copy() {
-        return new Section(this.c, this.init, this.evolveLimit, this.stage);
-    }
-
-    static Decode(s: string, sections: Record<string, Section>, stage = 0) {
-        let ss = new Array<Section>();
-        for (let c of s) {
-            let section = sections[c];
-            if (section != undefined) {
-                let newSection = section.Copy();
-                newSection.init(newSection);
-                ss.push(newSection);
-            }
-        }
-        if (ss.length) {
-            ss[0].stage = stage;
-        }
-        return ss;
-    }
-
-    progress() {
-        return this.stage / this.evolveLimit;
     }
 }
 
@@ -106,7 +62,7 @@ abstract class L_System {
     Grow(s: Section) {
         if (this.$energy < 0) {
             s.stage = s.evolveLimit;
-        } else if(s.stage < s.evolveLimit && this.$energy > this.$energyDecrease) {
+        } else if (s.stage < s.evolveLimit && this.$energy > this.$energyDecrease) {
             s.stage = Math.min(this.$energy - this.$energyDecrease, s.evolveLimit);
         }
     }
@@ -131,6 +87,7 @@ abstract class L_System {
             }
         }
         this.state = newState;
+        this.$energyDecrease += Section.evolveLimit;
     }
 
     EvolveTo(generation: number, transform: Transform) {
@@ -158,13 +115,7 @@ abstract class L_System {
         return s;
     }
 
-    CountMaxEnergy(generation: number, transform: Transform) {
-        this.$energy = -1;
-        this.EvolveTo(generation, transform);
-        let n = 0;
-        for (let section of this.state) {
-            n += section.stage;
-        }
-        return n;
+    CountMaxEnergy(generation: number) {
+        return (generation - 1) * Section.evolveLimit;
     }
 }
