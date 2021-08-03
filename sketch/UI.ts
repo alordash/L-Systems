@@ -30,16 +30,16 @@ abstract class UIControl {
     static CreateOptions() {
         let list = document.createElement('select');
         list.className = 'options';
-        for (let system of L_Systems_List) {
+        for (let System of L_Systems_List) {
             let option = document.createElement('option');
-            option.innerHTML = system.name;
+            option.innerHTML = System.name;
             list.appendChild(option);
         }
 
         list.onchange = () => {
-            let system = L_Systems_List.find((x) => { return x.name == list.value; });
-            console.log('system.name :>> ', system.name);
-            lSystem = new system();
+            let System = L_Systems_List.find((x) => { return x.name == list.value; });
+            console.log('system.name :>> ', System.name);
+            lSystem = new System();
             lSystem.reset(SpawnTransform);
             UIControl.CreateParametersPanel(lSystem);
             Update(true, true);
